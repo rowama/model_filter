@@ -1,0 +1,1 @@
+{"_id":"653ff324a3839006573a2d87","id":"laion/larger_clap_general","cardData":{"license":"apache-2.0"},"tags":["transformers","pytorch","clap","feature-extraction","arxiv:2211.06687","license:apache-2.0","endpoints_compatible","deploy:azure","region:us"],"pipeline_tag":"feature-extraction","createdAt":"2023-10-30T18:17:08.000Z"}

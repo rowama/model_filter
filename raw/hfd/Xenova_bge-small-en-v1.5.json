@@ -1,0 +1,1 @@
+{"_id":"6501d9c1e4d9d2d301d76685","id":"Xenova/bge-small-en-v1.5","cardData":{"base_model":"BAAI/bge-small-en-v1.5","library_name":"transformers.js"},"tags":["transformers.js","onnx","bert","feature-extraction","base_model:BAAI/bge-small-en-v1.5","base_model:quantized:BAAI/bge-small-en-v1.5","region:us"],"pipeline_tag":"feature-extraction","createdAt":"2023-09-13T15:48:17.000Z"}

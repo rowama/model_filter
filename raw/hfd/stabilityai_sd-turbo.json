@@ -1,0 +1,1 @@
+{"_id":"6564c6b00c754d598ceb53da","id":"stabilityai/sd-turbo","cardData":{"pipeline_tag":"text-to-image","inference":false},"tags":["diffusers","safetensors","text-to-image","diffusers:StableDiffusionPipeline","region:us"],"pipeline_tag":"text-to-image","createdAt":"2023-11-27T16:41:20.000Z","safetensors":{"parameters":{"F32":865910724},"total":865910724}}

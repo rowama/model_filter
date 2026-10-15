@@ -1,0 +1,1 @@
+{"_id":"66b04bbdd6977ada2dcd1e29","id":"SG161222/RealVisXL_V5.0","cardData":{"license":"openrail++"},"tags":["diffusers","safetensors","license:openrail++","endpoints_compatible","diffusers:StableDiffusionXLPipeline","region:us"],"pipeline_tag":"text-to-image","createdAt":"2024-08-05T03:49:17.000Z","safetensors":{"parameters":{"F32":2567463684},"total":2567463684}}

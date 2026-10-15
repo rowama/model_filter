@@ -1,0 +1,1 @@
+{"_id":"68f75b260042394b7fd3e5d1","id":"optimum-intel-internal-testing/stable-diffusion-3-tiny-random","cardData":{"library_name":"diffusers"},"tags":["diffusers","safetensors","diffusers:StableDiffusion3Pipeline","region:us"],"pipeline_tag":"text-to-image","createdAt":"2025-10-21T10:06:30.000Z","safetensors":{"parameters":{"F16":302736},"total":302736}}

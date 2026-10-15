@@ -1,0 +1,162 @@
+{
+  "card": 2048,
+  "n_q": 32,
+  "dep_q": 32,
+  "delays": [
+    0,
+    0,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2
+  ],
+  "dim": 2048,
+  "text_card": 8000,
+  "existing_text_padding_id": 3,
+  "num_heads": 16,
+  "num_layers": 16,
+  "hidden_scale": 4.125,
+  "causal": true,
+  "layer_scale": null,
+  "context": 500,
+  "max_period": 10000,
+  "gating": "silu",
+  "norm": "rms_norm_f32",
+  "positional_embedding": "rope",
+  "depformer_dim": 1024,
+  "depformer_num_heads": 16,
+  "depformer_num_layers": 4,
+  "depformer_dim_feedforward": 3072,
+  "depformer_multi_linear": true,
+  "depformer_pos_emb": "none",
+  "depformer_weights_per_step": true,
+  "depformer_low_rank_embeddings": 128,
+  "demux_second_stream": true,
+  "text_card_out": null,
+  "conditioners": {
+    "speaker_wavs": {
+      "type": "tensor",
+      "tensor": {
+        "dim": 512
+      }
+    },
+    "cfg": {
+      "type": "lut",
+      "lut": {
+        "n_bins": 7,
+        "dim": 16,
+        "tokenizer": "noop",
+        "possible_values": [
+          "1.0",
+          "1.5",
+          "2.0",
+          "2.5",
+          "3.0",
+          "3.5",
+          "4.0"
+        ]
+      }
+    },
+    "control": {
+      "type": "lut",
+      "lut": {
+        "dim": 2048,
+        "n_bins": 1,
+        "tokenizer": "noop",
+        "possible_values": [
+          "ok"
+        ]
+      }
+    }
+  },
+  "fuser": {
+    "cross_attention_pos_emb": true,
+    "cross_attention_pos_emb_scale": 1,
+    "sum": [
+      "control",
+      "cfg"
+    ],
+    "prepend": [],
+    "cross": [
+      "speaker_wavs"
+    ]
+  },
+  "cross_attention": true,
+  "tts_config": {
+    "audio_delay": 1.28,
+    "second_stream_ahead": 2
+  },
+  "model_id": {
+    "sig": "1e68beda",
+    "epoch": 240
+  },
+  "depformer_weights_per_step_schedule": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    8,
+    8,
+    8,
+    8,
+    8,
+    8,
+    8,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10
+  ],
+  "model_type": "tts",
+  "lm_gen_config": {
+    "temp": 0.6,
+    "text_temp": 0.6
+  },
+  "tokenizer_name": "tokenizer_spm_8k_en_fr_audio.model",
+  "mimi_name": "tokenizer-e351c8d8-checkpoint125.safetensors",
+  "moshi_name": "dsm_tts_1e68beda@240.safetensors"
+}

@@ -1,0 +1,1 @@
+{"_id":"6693407be3a813f3bbf48da8","id":"unslothai/1","cardData":{"library_name":"transformers","tags":[]},"tags":["transformers","safetensors","llama","feature-extraction","endpoints_compatible","deploy:azure","region:us"],"pipeline_tag":"feature-extraction","createdAt":"2024-07-14T03:05:31.000Z","safetensors":{"parameters":{"F32":0},"total":0}}

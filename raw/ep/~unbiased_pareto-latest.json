@@ -1,0 +1,1 @@
+{"data":{"id":"~unbiased/pareto-latest","name":"Pareto Latest","created":1791933050,"description":"This model always redirects to the latest model in the Pareto family.","architecture":{"tokenizer":"Router","instruct_type":null,"modality":"text+image->text","input_modalities":["text","image"],"output_modalities":["text"]},"endpoints":[]}}

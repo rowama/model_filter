@@ -1,0 +1,1 @@
+{"_id":"65a4ce6d9f0a34c17376fa20","id":"Qdrant/bge-small-en-v1.5-onnx-Q","cardData":{"license":"mit","pipeline_tag":"sentence-similarity"},"tags":["transformers","onnx","bert","feature-extraction","sentence-similarity","license:mit","text-embeddings-inference","endpoints_compatible","region:us"],"pipeline_tag":"sentence-similarity","createdAt":"2024-01-15T06:19:25.000Z"}

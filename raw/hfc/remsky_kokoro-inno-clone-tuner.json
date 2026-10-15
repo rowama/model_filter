@@ -1,0 +1,36 @@
+{
+  "name": "inno_ref01",
+  "version": "0.2.0",
+  "model_type": "kokoro-inno-reference-tuner",
+  "base_model": "hexgrad/Kokoro-82M",
+  "base_model_file": "kokoro-v1_0.pth",
+  "kokoro_version": "0.9.4",
+  "speaker_encoder": "baked enc.* in model.safetensors: wespeaker-resnet34 distilled from microsoft/unispeech-sat-base-plus-sv",
+  "embedding_dim": 512,
+  "style_dim": 256,
+  "voice_pack_shape": [
+    510,
+    1,
+    256
+  ],
+  "sample_rate": 24000,
+  "weights": "model.safetensors",
+  "tilt_norm": {
+    "mean_db_per_oct": -7.8,
+    "sd": 1.8
+  },
+  "blend": {
+    "packs": 28,
+    "stats": "F0 mean (st), F0 spread (st), syllables per second, measured once on each stock pack's render of a fixed passage; baked as blend.stats",
+    "gate_st": 4.0,
+    "stat_scale": [1.0, 1.1, 0.8],
+    "grade_pen": 1.0,
+    "grades": "overall_grade per pack from Kokoro-FastAPI voice_grades.json, A = 4.0, C = 2.0; weight on packs below C is penalized"
+  },
+  "style_head": "heads.style.* / heads.tilt.weight: speaker embedding -> timbre half, trained on LibriTTS-R + VoxPopuli-en + Emilia-YODAS EN speakers with the predictor half fixed to the blend",
+  "prosody_head": {
+    "inputs": "reference F0 mean and sd (st), Praat over 6 s chunks; baked as head.W [3, 128], standardized by head.mu / head.sd, last row = bias",
+    "output": "delta added to every row of the predictor half after the blend",
+    "fit": "ridge on 426 speakers (LibriTTS-R, VoxPopuli-en, Emilia-YODAS EN) whose deltas were optimized through the frozen predictor to match F0 mean, spread, IQR, pause fraction and speech time"
+  }
+}
