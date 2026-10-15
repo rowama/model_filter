@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Builds data/catalog.js from raw/ snapshot files. No values are invented: missing -> null (shown 'unrated')."""
-import json, glob, os, re, statistics, collections, datetime
+import json, glob, os, re, statistics, collections, datetime, sys
+sys.path.insert(0, os.path.dirname(__file__)); import enrich
 R = os.path.join(os.path.dirname(__file__), '..', 'raw'); OUT = os.path.join(os.path.dirname(__file__), '..', 'data')
 os.makedirs(OUT, exist_ok=True)
 def jl(p):
@@ -16,9 +17,11 @@ def rec(key):
         models[key] = dict(id=key, name=key, maker=None, types=set(), weights=None, license=None, priceIn=None, priceOut=None,
                            comments=[], context=None, maxOut=None, params=None, speed=None, release=None, tools=None, json=None,
                            reasoning=None, inputMods=None, languages=None, localGPU=None, embedDim=None, desc='', sources=set(),
-                           hf=None, orid=None, downloads=None, bench={})
+                           hf=None, orid=None, downloads=None, bench={}, prov={}, latency=None, aaIndex=None, aaIndexEstimated=None,
+                           priceAudioMin=None, priceChars=None, paramsEstimated=False, jobsAnecdotal={})
     return models[key]
 
+templates = {}
 hfdetail = {}
 for f in glob.glob(f'{R}/hfd/*.json'):
     d = jl(f)
@@ -69,6 +72,8 @@ for pt, ty in HF_TYPES.items():
         r = rec('hf:' + m['id']); r['types'].add(ty); r['name'] = m['id'].split('/')[-1]; r['maker'] = m['id'].split('/')[0]
         r['weights'] = 'Open'; r['sources'].add(f'HF top50 {pt}'); r['downloads'] = m.get('downloads')
         apply_hf(r, m['id'])
+        tc = ((m.get('config') or {}).get('tokenizer_config') or {}).get('chat_template')
+        if tc: templates[m['id']] = tc
         d = hfdetail.get(m['id']) or {}
         if pt == 'image-text-to-text': r['inputMods'] = ['image', 'text']
         elif pt in ('text-generation', 'feature-extraction', 'sentence-similarity', 'text-to-image', 'text-to-speech'): r['inputMods'] = r['inputMods'] or ['text']
@@ -253,16 +258,20 @@ n = 0
 for mname, v in lcb.items(): n += assign('livecodebench', mname, sum(v) / len(v)) > 0
 bench_src['livecodebench'] = n
 
+ENRICH_STATS = enrich.run(models, R, rec, assign, variants_of, index, templates)
 BENCH_GROUPS = {
-  'aptCoding': ['swe_verified', 'aider_polyglot', 'livecodebench', 'arena_webdev'],
-  'aptReasoning': ['oll_gpqa', 'oll_math', 'oll_mmlupro', 'oll_bbh', 'oll_musr'],
+  'aptCoding': ['swe_verified', 'aider_polyglot', 'livecodebench', 'arena_webdev', 'aa_terminalbenchHard', 'aa_scicode'],
+  'aptReasoning': ['oll_gpqa', 'oll_math', 'oll_mmlupro', 'oll_bbh', 'oll_musr', 'aa_gpqa', 'aa_hle'],
   'aptWriting': ['arena_text'],
-  'aptInstruct': ['oll_ifeval'],
-  'aptAgents': ['swe_verified'],
-  'aptVision': ['arena_vision'],
+  'aptInstruct': ['oll_ifeval', 'aa_ifbench'],
+  'aptAgents': ['swe_verified', 'aa_tau2', 'aa_terminalbenchHard'],
+  'aptVision': ['arena_vision', 'aa_mmmuPro'],
+  'aptEmbedding': ['mteb_eng14'],
+  'aptSTT': ['asr_neg_wer'],
+  'aptTTS': ['tts_arena_elo'],
   'aptImageGen': ['arena_t2i'],
 }
-TEXTB = ['swe_verified', 'aider_polyglot', 'livecodebench', 'arena_webdev', 'arena_text', 'oll_gpqa', 'oll_math', 'oll_mmlupro', 'oll_bbh', 'oll_musr', 'oll_ifeval', 'arena_vision']
+TEXTB = ['swe_verified', 'aider_polyglot', 'livecodebench', 'arena_webdev', 'arena_text', 'oll_gpqa', 'oll_math', 'oll_mmlupro', 'oll_bbh', 'oll_musr', 'oll_ifeval', 'arena_vision', 'aa_gpqa', 'aa_hle', 'aa_tau2', 'aa_terminalbenchHard', 'aa_ifbench', 'aa_scicode', 'aa_lcr', 'aa_mmmuPro']
 allb = sorted({b for r in models.values() for b in r['bench']})
 pct = collections.defaultdict(dict)
 for b in allb:
@@ -277,6 +286,9 @@ for k, r in models.items():
         v = [p[b] for b in bs if b in p]; r[a] = round(sum(v) / len(v), 1) if v else None
     v = [p[b] for b in TEXTB if b in p]; r['intelligence'] = round(sum(v) / len(v), 1) if v else None
     r['benchPct'] = {b: round(p[b], 1) for b in p}
+    for a, bs in list(BENCH_GROUPS.items()) + [('intelligence', TEXTB)]:
+        used = [b for b in bs if b in p]
+        if used: r['prov'][a] = 'mean percentile of ' + ', '.join(used)
     r['benchRaw'] = {b: round(x, 2) for b, x in r['bench'].items()}
 
 # --- job tags (heuristic, documented in SPEC.md)
@@ -314,18 +326,22 @@ for r in models.values():
     # domain sanity: drop tags impossible for the model type
     if not ty & {'text', 'vision'}: tags = {x for x in tags if x.split('.')[0] in {'retrieval', 'imagegen', 'speech'}}
     if 'embed' in ty and not ty & {'text', 'vision'}: tags = {x for x in tags if x.startswith('retrieval')}
-    r['jobs'] = sorted(tags)
+    r['jobs'] = sorted(tags); r['_heurJobs'] = set(tags)
+COMM_STATS = enrich.community(models, R, json.load(open(f'{R}/community_targets.json')))
+for r in models.values():
+    r['jobs'] = sorted(set(r['jobs']) | set(r['jobsAnecdotal']))  # anecdotal tags count as tagged; flagged via jobsAnecdotal
+    r['jobsAnecdotalOnly'] = sorted(set(r['jobsAnecdotal']) - set(r['_heurJobs'])) if r['jobsAnecdotal'] else []
 
 out = []
 for k, r in models.items():
     if not r['types']: continue
     o = {f: r[f] for f in ['id', 'name', 'maker', 'weights', 'license', 'priceIn', 'priceOut', 'intelligence', 'context', 'maxOut', 'params', 'speed',
                            'release', 'tools', 'json', 'reasoning', 'inputMods', 'languages', 'localGPU', 'embedDim', 'jobs',
-                           'aptCoding', 'aptReasoning', 'aptWriting', 'aptInstruct', 'aptAgents', 'aptVision', 'aptImageGen', 'benchRaw', 'benchPct', 'hf', 'orid']}
+                           'aptCoding', 'aptReasoning', 'aptWriting', 'aptInstruct', 'aptAgents', 'aptVision', 'aptImageGen', 'benchRaw', 'benchPct', 'hf', 'orid', 'aptEmbedding', 'aptSTT', 'aptTTS', 'latency', 'aaIndex', 'aaIndexEstimated', 'priceAudioMin', 'priceChars', 'paramsEstimated', 'prov', 'jobsAnecdotal', 'jobsAnecdotalOnly']}
     o['types'] = sorted(r['types']); o['sources'] = sorted(r['sources']); o['comments'] = '; '.join(r['comments'])
     out.append(o)
-snap = datetime.date.today().isoformat()
-meta = dict(snapshotDate=snap, arenaPublishDate=arena_date, counts=collections.Counter(t for o in out for t in o['types']), total=len(out),
+snap = '2026-10-14'
+meta = dict(snapshotDate=snap, enrichDate='2026-10-15', enrichStats=ENRICH_STATS, communityStats=COMM_STATS, arenaPublishDate=arena_date, counts=collections.Counter(t for o in out for t in o['types']), total=len(out),
             benchMatches=bench_src, skippedAliases=skipped_alias)
 open(f'{OUT}/catalog.js', 'w').write('(typeof window !== "undefined" ? window : globalThis).CATALOG = ' + json.dumps({'meta': meta, 'models': out}) + ';\n')
 json.dump({'meta': meta, 'models': out}, open(f'{OUT}/catalog.json', 'w'))

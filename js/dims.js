@@ -10,7 +10,7 @@
   const fmtYM = v => { const y = Math.floor(v + 1e-9), m = Math.round((v - y) * 12) + 1; return y + '-' + String(m).padStart(2, '0'); };
   const ym = s => s ? (+s.slice(0, 4)) + (+s.slice(5, 7) - 1) / 12 : null;
   const num = (id, label, field, top, opts = {}) => ({ id, label, field, kind: 'numeric', top, types: opts.types || ALL, fmt: opts.fmt || (v => String(v)), unit: opts.unit || '', get: opts.get, col: opts.col || label, step: opts.step });
-  const cat = (id, label, field, tree, opts = {}) => ({ id, label, field, kind: 'categorical', multi: !!opts.multi, tree, types: opts.types || ALL, show: opts.show, get: opts.get });
+  const cat = (id, label, field, tree, opts = {}) => ({ id, label, field, kind: 'categorical', multi: !!opts.multi, tree, types: opts.types || ALL, show: opts.show, get: opts.get, strictGet: opts.strictGet });
   const yesno = [{ key: 'yes', label: 'Yes' }, { key: 'no', label: 'No' }];
   const boolGet = f => m => m[f] === null || m[f] === undefined ? null : (m[f] ? 'yes' : 'no');
   const JOBS = [
@@ -40,18 +40,25 @@
     num('priceOut', 'Output price', 'priceOut', [[0, 0.5], [0.5, 2], [2, 10], [10, Infinity]], { fmt: fmt$, unit: '/1M', col: 'Out $/1M' }),
     num('intelligence', 'Intelligence', 'intelligence', [[0, 25], [25, 50], [50, 75], [75, Infinity]], { types: TXT, col: 'Intel.' }),
     num('context', 'Context window', 'context', [[0, 1e5], [1e5, 5e5], [5e5, 1e6], [1e6, Infinity]], { types: ['text', 'vision', 'embed'], fmt: fmtK, unit: ' tokens', col: 'Context' }),
-    cat('jobs', 'Job', 'jobs', JOBS, { multi: true }),
+    cat('jobs', 'Job', 'jobs', JOBS, { multi: true, strictGet: m => (m.jobs || []).filter(j => !(m.jobsAnecdotalOnly || []).includes(j)) }),
     num('aptCoding', 'Coding score', 'aptCoding', [[0, 25], [25, 50], [50, 75], [75, Infinity]], { types: TXT, col: 'Coding' }),
     num('aptReasoning', 'Reasoning score', 'aptReasoning', [[0, 25], [25, 50], [50, 75], [75, Infinity]], { types: TXT, col: 'Reason.' }),
     num('aptWriting', 'Writing/chat score', 'aptWriting', [[0, 25], [25, 50], [50, 75], [75, Infinity]], { types: TXT, col: 'Writing' }),
     num('aptInstruct', 'Instruction/extraction score', 'aptInstruct', [[0, 25], [25, 50], [50, 75], [75, Infinity]], { types: TXT, col: 'Instr.' }),
     num('aptAgents', 'Agentic score', 'aptAgents', [[0, 25], [25, 50], [50, 75], [75, Infinity]], { types: TXT, col: 'Agents' }),
     num('aptVision', 'Vision score', 'aptVision', [[0, 25], [25, 50], [50, 75], [75, Infinity]], { types: ['vision'], col: 'Vision' }),
+    num('aaIndex', 'AA intelligence index', 'aaIndex', [[0, 20], [20, 40], [40, 60], [60, Infinity]], { types: TXT, col: 'AA idx' }),
+    num('aptEmbedding', 'Embedding score (MTEB)', 'aptEmbedding', [[0, 25], [25, 50], [50, 75], [75, Infinity]], { types: ['embed'], col: 'MTEB' }),
+    num('aptSTT', 'Transcription score (Open ASR)', 'aptSTT', [[0, 25], [25, 50], [50, 75], [75, Infinity]], { types: ['stt'], col: 'ASR' }),
+    num('aptTTS', 'Speech quality score (TTS Arena)', 'aptTTS', [[0, 25], [25, 50], [50, 75], [75, Infinity]], { types: ['tts'], col: 'TTS' }),
     num('aptImageGen', 'Image-gen score', 'aptImageGen', [[0, 25], [25, 50], [50, 75], [75, Infinity]], { types: ['t2i'], col: 'ImgGen' }),
     cat('maker', 'Maker', 'maker', null),
     num('params', 'Parameters', 'params', [[0, 3], [3, 15], [15, 80], [80, Infinity]], { unit: 'B', fmt: v => String(v), col: 'Params B' }),
     num('maxOut', 'Max output', 'maxOut', [[0, 8192], [8192, 32768], [32768, 131072], [131072, Infinity]], { types: TXT, fmt: fmtK, unit: ' tokens', col: 'Max out' }),
     num('speed', 'Speed', 'speed', [[0, 50], [50, 100], [100, 200], [200, Infinity]], { types: TXT, unit: ' tok/s', col: 'tok/s' }),
+    num('latency', 'Latency (TTFT)', 'latency', [[0, 0.5], [0.5, 1], [1, 5], [5, Infinity]], { types: TXT, unit: ' s', col: 'TTFT s' }),
+    num('priceAudioMin', 'Audio price', 'priceAudioMin', [[0, 0.003], [0.003, 0.006], [0.006, Infinity]], { types: ['stt'], fmt: v => '$' + v, unit: '/min', col: '$/min' }),
+    num('priceChars', 'Character price', 'priceChars', [[0, 20], [20, 50], [50, Infinity]], { types: ['tts'], fmt: v => '$' + v, unit: '/1M chars', col: '$/1M ch' }),
     num('release', 'Release', 'release', [[0, 2024], [2024, 2025], [2025, 2026], [2026, Infinity]], { fmt: fmtYM, get: m => ym(m.release), col: 'Released', step: 1 / 12 }),
     cat('tools', 'Tool calling', 'tools', yesno, { types: TXT, get: boolGet('tools') }),
     cat('json', 'Structured JSON', 'json', yesno, { types: TXT, get: boolGet('json') }),
@@ -77,5 +84,7 @@
     }
     return DIMS;
   }
-  root.MF_DIMS = { TYPES, DIMS, finishDims, ALL_TYPES: ALL };
+  // parameter display: estimated (closed-model) counts are shown as '~200B (est.)'
+  const fmtParams = m => m.params == null ? 'unrated' : (m.paramsEstimated ? `~${+(+m.params).toPrecision(4)}B (est.)` : `${+(+m.params).toPrecision(4)}`);
+  root.MF_DIMS = { TYPES, DIMS, finishDims, ALL_TYPES: ALL, fmtParams };
 })(typeof window !== 'undefined' ? window : globalThis);

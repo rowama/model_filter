@@ -32,6 +32,7 @@
           const s = new Set();
           arr.forEach(v => { s.add(v); (d.anc[v] || []).forEach(a => s.add(a)); });
           o[d.id] = s;
+          if (d.strictGet) { const st = new Set(); d.strictGet(m).forEach(v => { st.add(v); (d.anc[v] || []).forEach(a => st.add(a)); }); o[d.id + '__strict'] = st; }
         }
       }
       return o;
@@ -142,20 +143,33 @@
         const others = uni.map((i, j) => vis.every(o => o === d || pass[o.id][j]));
         norm[d.id].forEach((lvl, k) => {
           const options = lvl.options.map(key => {
-            let count = 0;
+            let count = 0, anecdotal = 0;
             uni.forEach((i, j) => {
               if (!others[j]) return;
               const v = V[i][d.id];
               if (d.kind === 'numeric') { if (numChain(d, v, norm[d.id], k - 1) && inRanges(v, [key])) count++; }
-              else if (key === 'unrated' ? v === null : (v !== null && v.has(key))) count++;
+              else if (key === 'unrated' ? v === null : (v !== null && v.has(key))) {
+                count++;
+                if (d.strictGet && key !== 'unrated' && !V[i][d.id + '__strict'].has(key)) anecdotal++;
+              }
             });
             const checked = lvl.checked.includes(key);
-            return { key, label: labelFor(d, key, k), count, checked };
+            const o = { key, label: labelFor(d, key, k), count, checked };
+            if (d.strictGet) o.anecdotal = anecdotal; // models matching ONLY via anecdotal (community) tags
+            return o;
           }).filter(o => o.count > 0 || o.checked); // zero-count boxes are hidden unless checked
           const framed = d.kind === 'categorical' && d.multi && lvl.checked.length >= 2;
           groups.push({ id: d.id + ':' + k, dim: d.id, level: k, multi: !!d.multi, options, frame: framed ? { mode: lvl.mode, keys: lvl.checked.slice() } : null });
         });
       }
+      // flag rows that pass a strictGet dim only thanks to anecdotal tags
+      const rowFlags = {};
+      vis.filter(d => d.strictGet).forEach(d => {
+        const levels = norm[d.id]; const g = levels.reduce((acc, l, k) => l.checked.length ? k : acc, -1);
+        if (g < 0) return;
+        rowsIdx.forEach(i => { const st = V[i][d.id + '__strict']; const sv = st && st.size ? st : null;
+          if (!catMatch(d, sv, levels[g])) (rowFlags[models[i].id] = rowFlags[models[i].id] || {}).anecdotal = true; });
+      });
       // sorting
       let rows = rowsIdx.map(i => models[i]);
       const s = sel.sort;
@@ -174,7 +188,7 @@
         ...vis.filter(d => d.kind === 'numeric').map(d => ({ id: d.id, label: d.col, numeric: true })), { id: 'comments', label: 'Comments' }];
       const outDims = Object.assign({}, sel.dims || {});
       vis.forEach(d => outDims[d.id] = { levels: norm[d.id].map(l => ({ checked: l.checked, mode: l.mode })) });
-      return { rows, total: uni.length, groups, columns, selections: { type, dims: outDims, sort: sel.sort || null } };
+      return { rows, rowFlags, total: uni.length, groups, columns, selections: { type, dims: outDims, sort: sel.sort || null } };
     }
     const value = (m, dimId) => V[models.indexOf(m)][dimId];
     return { query, dims: DIMS, meta: catalog.meta, value };

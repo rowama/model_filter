@@ -1,0 +1,76 @@
+[
+ {
+  "id": "or:anthropic/claude-opus-5.5",
+  "tags": [
+   "coding.debug",
+   "coding.refactor"
+  ],
+  "source": "X",
+  "url": "https://x.com/botcolony/status/2104300543992537135",
+  "quote": "We're using Opus 5.5 for debugging and code refactoring.",
+  "reviewed": "manually reviewed 2026-10-15: first-person usage report"
+ },
+ {
+  "id": "or:anthropic/claude-opus-5.5",
+  "tags": [
+   "coding.review",
+   "coding.refactor"
+  ],
+  "source": "X",
+  "url": "https://x.com/vwapster/status/2109783610618458479",
+  "quote": "I save Opus 5.5 for purely code review and refactoring Codex code. It's super efficient if you use Astra to architect and 6.1 Sol to code then have Opus 5.5 to do a final review",
+  "reviewed": "manually reviewed 2026-10-15: first-person usage report"
+ },
+ {
+  "id": "or:anthropic/claude-opus-5.5",
+  "tags": [
+   "coding.debug",
+   "coding.refactor"
+  ],
+  "source": "X",
+  "url": "https://x.com/erangross03/status/2106998764753826033",
+  "quote": "Claude Opus 5.5 has been incredible for real-world development. I've used it across an entire mobile app workflow \u2014 coding, UI/UX, debugging, QA, refactoring",
+  "reviewed": "manually reviewed 2026-10-15: first-person usage report"
+ },
+ {
+  "id": "or:moonshotai/kimi-k3",
+  "tags": [
+   "coding.debug"
+  ],
+  "source": "X",
+  "url": "https://x.com/solitrix02/status/2100272224876007782",
+  "quote": "Kimi K3 -> for debugging",
+  "reviewed": "manually reviewed 2026-10-15: first-person usage report"
+ },
+ {
+  "id": "or:deepseek/deepseek-v4-flash",
+  "tags": [
+   "coding.refactor",
+   "agents.workflows"
+  ],
+  "source": "X",
+  "url": "https://x.com/8bitgeek/status/2100688805632053503",
+  "quote": "Leaning heavily on AI for the major refactoring, and bulk changes. ... deepseek-v4-flash is that I use most often with Cline agent.",
+  "reviewed": "manually reviewed 2026-10-15: first-person usage report"
+ },
+ {
+  "id": "or:x-ai/grok-4.7",
+  "tags": [
+   "coding.refactor"
+  ],
+  "source": "X",
+  "url": "https://x.com/andrydina7/status/2103124709852197268",
+  "quote": "Grok 4.7 cut my refactor time in half last month.",
+  "reviewed": "manually reviewed 2026-10-15: first-person usage report"
+ },
+ {
+  "id": "or:xiaomi/mimo-v2.5-pro",
+  "tags": [
+   "agents.workflows"
+  ],
+  "source": "GitHub",
+  "url": "https://github.com/XiaomiMiMo/MiMo/issues/38",
+  "quote": "This makes the Token Plan difficult to trust for agentic coding, even when the model itself works well.",
+  "reviewed": "manually reviewed 2026-10-15: first-person usage report"
+ }
+]

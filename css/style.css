@@ -19,5 +19,7 @@ th .arr{color:#3b6fd6;margin-left:3px}
 td{padding:4px 8px;border-bottom:1px solid #eef0f2;white-space:nowrap}
 td.num{text-align:right}td.c{white-space:normal;color:#59626d;font-size:12px;min-width:260px}
 td .u{color:#a6adb5;font-style:italic}tr:hover td{background:#f5f8ff}
-#pop{position:fixed;z-index:9;max-width:420px;background:#fff;border:1px solid #d7dde4;box-shadow:0 4px 16px rgba(0,0,0,.08);border-radius:6px;padding:8px 10px;font-size:12px;pointer-events:none}
+#pop{position:fixed;z-index:9;max-width:460px;max-height:70vh;overflow:auto;background:#fff;border:1px solid #d7dde4;box-shadow:0 4px 16px rgba(0,0,0,.08);border-radius:6px;padding:8px 10px;font-size:12px;}
 #pop b{display:inline-block;min-width:92px;color:#59626d;font-weight:500}
+
+.anec{color:#c26b00;font-weight:600;margin-left:1px}#pop .sec{margin-top:6px;color:#c26b00}#pop .ev{margin:2px 0}#pop a{color:#3b6fd6}#pop details{margin-top:6px}#pop .prov{color:#59626d;font-size:11px}

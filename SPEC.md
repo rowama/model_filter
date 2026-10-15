@@ -75,6 +75,48 @@ Tags are **heuristic**: regex keywords over the name, description and HF tags, p
 | Runs locally | Heuristic on params: ≤14B yes; 14–40B high-end/quantized; >40B no; closed no |
 | Embedding dim | Embeddings only |
 
+## 1b. Enrichment pass (2026-10-15) — `scripts/enrich.py`
+- **Provenance:** every non-null field records its source in `prov[field]`, shown under "Provenance" in the row hover. Aptitude and intelligence provenance lists the benchmarks that were used.
+- **Artificial Analysis:** the public leaderboard page (`artificialanalysis.ai/leaderboards/models`) embeds its model table, which is parsed into `raw/aa/aa_models.json`. The API needs a key and was not used.
+  - Fills `speed` (median output tok/s across matched AA variants), `latency` (median TTFT in seconds) and `aaIndex` (AA Intelligence Index, max over variants; AA's own estimates are flagged `aaIndexEstimated`).
+  - Fills context, reasoning (only if a variant is a reasoning model) and price (only when there are no OpenRouter quotes; noted in the comments), but only where these were null.
+  - AA benchmark results feed the aptitudes: GPQA, HLE, tau2, TerminalBench-Hard, IFBench, SciCode, LCR, MMMU-Pro.
+- **MTEB:** HF dataset `mteb/results`, 14 common English tasks (split=test, subset=default, max score per model and task). The score is the mean over the tasks a model has; at least 10 of the 14 are required. Stored as `mteb_eng14`, which drives the Embedding score.
+- **Open ASR leaderboard:** `hf-audio/open-asr-leaderboard-results/english_short_latest.csv`, average WER. Lower is better, so it is stored as −WER. Matched by model name, so repacks and quantizations of the same weights count. Drives the Transcription score.
+- **TTS Arena V2:** `tts-agi-tts-arena-v2.hf.space/api/leaderboard` Elo. Explicit alias map only. Drives the Speech quality score.
+- **Vendor pricing pages:** ai.google.dev (Gemini Embedding 2), elevenlabs.io/pricing/api (v3, v4 Turbo), deepgram.com/pricing (Nova-3), OpenAI (Whisper, transcribe, tts-1-hd).
+  - Per-minute and per-character prices get their own dimensions: **Audio price $/min** (speech-to-text) and **Character price $/1M chars** (text-to-speech). They are never converted to $/1M tokens.
+  - Models still unpriced carry a comment saying why.
+- **HF chat templates:** tool calling and reasoning are set to *yes* when the tokenizer `chat_template` handles tools or thinking. These fields are never set to *no*.
+- **Parameter counts:**
+  - Exact from safetensors. Otherwise from the Open ASR "Size (B)" column, or parsed from the official open-weight model name (e.g. "8B").
+  - Closed models get only credible published estimates, stored with `paramsEstimated=true` plus the source in `prov.params`, and shown as "~200B (est.)".
+  - **No credible estimates were found for this snapshot, so none are set** (`PARAM_ESTIMATES` in `scripts/enrich.py` is empty).
+- **Community evidence (anecdotal):**
+  - Bounded to the top 100 text models with an OpenRouter id (sorted by intelligence; `raw/community_targets.json`).
+  - **GitHub** search API (issues and discussions): one query per model, with job keywords limited to 5 boolean operators.
+  - **X** search: a handful of top coding models via the `x` tool namespace, which is rate-limited.
+  - **Reddit** returned HTTP 403 on every attempt, so it was not used.
+  - The automated extractor (`enrich.community`) looks for a 2-sentence window that names the model, contains a job keyword (refactor, debug, code review, unit tests, tool calling, agentic) and a positive-usage phrase, appears in a first-person post, and is not a question, claim or benchmark statement. Its hits go **only** to `raw/community/candidates.json`, because manual review showed most early hits were false positives (bug reports, quotes about other models).
+  - **Only manually reviewed first-person usage reports in `raw/community/curated.json` reach the catalog.** Each one keeps the URL and a verbatim quote. Snapshot: 11 tags on 5 models (Claude Opus 5.5, Kimi K3, DeepSeek V4 Flash, Grok 4.7, MiMo-V2.5-Pro).
+  - Stored in `jobsAnecdotal`. `jobsAnecdotalOnly` holds tags that have no heuristic or benchmark basis.
+  - Anecdotal tags **count as tagged for filtering**. They **never feed benchmark aptitude scores**: aptitudes are computed before the community pass, and a test checks this.
+  - In the UI, a Job checkbox shows "(N · k*)", where k is how many of the N match only through anecdotal tags. A result row that passes the Job filter only through anecdotal tags gets an orange **\*** after its name. The hover marks anecdotal-only tags with \* and lists the source links (the popover can be hovered and clicked).
+  - Credibility caveat: the keyword and sentiment heuristic is crude. Treat these tags as leads to check.
+- **New dimensions:**
+
+| Dimension | Applies to |
+|---|---|
+| AA intelligence index | text/vision |
+| Latency (TTFT) | text/vision |
+| Embedding score (MTEB) | embeddings |
+| Transcription score (Open ASR) | speech-to-text |
+| Speech quality score (TTS Arena) | text-to-speech |
+| Audio price $/min | speech-to-text |
+| Character price $/1M chars | text-to-speech |
+
+- Intelligence now also averages the AA benchmark percentiles.
+
 ## 2. Architecture
 - `js/dims.js`: dimension definitions and taxonomy trees.
 - `js/engine.js`: data access layer. `engine.query(selections) -> { rows, total, groups:[{id, dim, level, multi, options:[{key, label, count, checked}], frame}], columns, selections }`.
@@ -136,13 +178,15 @@ Two panels:
 
 ## 6. Tests
 - `node tests/engine.test.js`: 15 query-logic tests covering OR within a level, AND across dims, counts, governing level, union child generation (numeric and categorical), uncheck retention, All/Any frame, type hide/restore, shared dims, zero-count hiding (checked zero kept), sorting, the min-6 rule, and unrated counting.
+- `node tests/enrich.test.js`: anecdotal tags (counted as tagged, `anecdotal` count, row flag), the estimated-params flag and its formatting, and catalog checks (provenance, no community evidence feeding scores, URLs on evidence).
 - `NODE_PATH=<playwright node_modules> node tests/ui.test.js`: headless Chromium end to end, writes `tests/screenshot.png`.
 
 ## 7. Known gaps
-- Speed: no data.
-- Few reasoning/IFEval matches (archived leaderboard).
 - Only 10 image-gen scores.
-- No embedding-quality, STT or TTS benchmarks.
-- Job tags and local-GPU flags are heuristic.
-- Manual closed entries for non-OpenAI vendors have no prices.
+- Transcription scores cover 8 models; speech-quality scores cover 4 (most HF top-50 speech models are not on those leaderboards).
+- Speed and latency (Artificial Analysis) cover only models that AA tracks; mostly hosted text models.
+- Job tags and local-GPU flags are heuristic. Community tags are sparse and anecdotal.
+- No closed-model parameter estimates.
+- Still unpriced: Gemini Embedding 001, Imagen 4, Cohere Embed v4, ElevenLabs Multilingual v2, Midjourney.
+- Reddit blocked (HTTP 403).
 - HF top-50 lists include some fine-tunes and quantizations.

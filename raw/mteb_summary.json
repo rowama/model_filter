@@ -1,0 +1,209 @@
+{
+ "tasks": [
+  "SCIDOCS",
+  "TRECCOVID",
+  "ArguAna",
+  "STS12",
+  "STSBenchmark",
+  "SICK-R",
+  "SprintDuplicateQuestions",
+  "TwitterURLCorpus",
+  "Banking77Classification",
+  "ImdbClassification",
+  "StackExchangeClustering.v2",
+  "BiorxivClusteringP2P.v2",
+  "AskUbuntuDupQuestions",
+  "MindSmallReranking"
+ ],
+ "source": "HF dataset mteb/results (parquet, snapshot 2026-10-15), split=test subset=default, max score per model/task",
+ "models": {
+  "Alibaba-NLP/gte-multilingual-base": {
+   "mean": 64.56,
+   "tasks": 14
+  },
+  "BAAI/bge-base-en": {
+   "mean": 71.29,
+   "tasks": 12
+  },
+  "BAAI/bge-base-en-v1.5": {
+   "mean": 68.45,
+   "tasks": 14
+  },
+  "BAAI/bge-large-en-v1.5": {
+   "mean": 69.36,
+   "tasks": 14
+  },
+  "BAAI/bge-m3": {
+   "mean": 62.97,
+   "tasks": 10
+  },
+  "BAAI/bge-small-en-v1.5": {
+   "mean": 67.85,
+   "tasks": 14
+  },
+  "Octen/Octen-Embedding-8B": {
+   "mean": 78.1,
+   "tasks": 10
+  },
+  "OrdalieTech/Solon-embeddings-large-0.1": {
+   "mean": 63.87,
+   "tasks": 14
+  },
+  "Qwen/Qwen3-Embedding-0.6B": {
+   "mean": 72.64,
+   "tasks": 14
+  },
+  "Qwen/Qwen3-Embedding-4B": {
+   "mean": 76.08,
+   "tasks": 14
+  },
+  "Qwen/Qwen3-Embedding-8B": {
+   "mean": 76.74,
+   "tasks": 14
+  },
+  "Snowflake/snowflake-arctic-embed-l": {
+   "mean": 63.71,
+   "tasks": 14
+  },
+  "Snowflake/snowflake-arctic-embed-l-v2.0": {
+   "mean": 65.18,
+   "tasks": 14
+  },
+  "WhereIsAI/UAE-Large-V1": {
+   "mean": 69.71,
+   "tasks": 14
+  },
+  "ai-sage/Giga-Embeddings-instruct": {
+   "mean": 70.04,
+   "tasks": 14
+  },
+  "google/embeddinggemma-300m": {
+   "mean": 73.24,
+   "tasks": 14
+  },
+  "google/gemini-embedding-001": {
+   "mean": 76.26,
+   "tasks": 14
+  },
+  "ibm-granite/granite-embedding-small-english-r2": {
+   "mean": 62.33,
+   "tasks": 14
+  },
+  "intfloat/e5-base": {
+   "mean": 65.12,
+   "tasks": 14
+  },
+  "intfloat/e5-base-v2": {
+   "mean": 64.53,
+   "tasks": 14
+  },
+  "intfloat/e5-large-v2": {
+   "mean": 65.11,
+   "tasks": 14
+  },
+  "intfloat/e5-small-v2": {
+   "mean": 63.76,
+   "tasks": 14
+  },
+  "intfloat/multilingual-e5-base": {
+   "mean": 62.86,
+   "tasks": 14
+  },
+  "intfloat/multilingual-e5-large": {
+   "mean": 64.73,
+   "tasks": 14
+  },
+  "intfloat/multilingual-e5-large-instruct": {
+   "mean": 68.9,
+   "tasks": 14
+  },
+  "intfloat/multilingual-e5-small": {
+   "mean": 61.76,
+   "tasks": 14
+  },
+  "jinaai/jina-embeddings-v2-base-en": {
+   "mean": 60.51,
+   "tasks": 14
+  },
+  "jinaai/jina-embeddings-v2-small-en": {
+   "mean": 60.84,
+   "tasks": 14
+  },
+  "jinaai/jina-embeddings-v3": {
+   "mean": 68.01,
+   "tasks": 14
+  },
+  "jinaai/jina-embeddings-v5-omni-small": {
+   "mean": 73.16,
+   "tasks": 14
+  },
+  "microsoft/harrier-oss-v1-0.6b": {
+   "mean": 74.1,
+   "tasks": 10
+  },
+  "mixedbread-ai/deepset-mxbai-embed-de-large-v1": {
+   "mean": 66.0,
+   "tasks": 14
+  },
+  "mixedbread-ai/mxbai-embed-large-v1": {
+   "mean": 69.43,
+   "tasks": 14
+  },
+  "nomic-ai/nomic-embed-text-v1": {
+   "mean": 66.59,
+   "tasks": 14
+  },
+  "nomic-ai/nomic-embed-text-v1.5": {
+   "mean": 64.74,
+   "tasks": 14
+  },
+  "nomic-ai/nomic-embed-text-v2-moe": {
+   "mean": 65.4,
+   "tasks": 14
+  },
+  "openai/text-embedding-3-large": {
+   "mean": 67.25,
+   "tasks": 10
+  },
+  "openai/text-embedding-3-small": {
+   "mean": 65.42,
+   "tasks": 10
+  },
+  "openai/text-embedding-ada-002": {
+   "mean": 71.59,
+   "tasks": 10
+  },
+  "sentence-transformers/LaBSE": {
+   "mean": 51.03,
+   "tasks": 14
+  },
+  "sentence-transformers/all-MiniLM-L12-v2": {
+   "mean": 60.89,
+   "tasks": 14
+  },
+  "sentence-transformers/all-MiniLM-L6-v2": {
+   "mean": 60.89,
+   "tasks": 14
+  },
+  "sentence-transformers/all-mpnet-base-v2": {
+   "mean": 62.17,
+   "tasks": 14
+  },
+  "sentence-transformers/multi-qa-MiniLM-L6-cos-v1": {
+   "mean": 60.96,
+   "tasks": 10
+  },
+  "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2": {
+   "mean": 58.84,
+   "tasks": 14
+  },
+  "sentence-transformers/paraphrase-multilingual-mpnet-base-v2": {
+   "mean": 59.99,
+   "tasks": 14
+  },
+  "thenlper/gte-small": {
+   "mean": 66.18,
+   "tasks": 14
+  }
+ }
+}

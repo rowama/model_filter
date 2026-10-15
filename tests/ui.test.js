@@ -32,9 +32,15 @@ const { chromium } = require('playwright'); const path = require('path'); const 
   await p.click('th[data-col=priceIn]'); assert((await p.locator('th[data-col=priceIn]').textContent()).includes('▲'));
   await p.click('th[data-col=priceIn]'); assert((await p.locator('th[data-col=priceIn]').textContent()).includes('▼'));
   const lastCell = await p.locator('#table tbody tr:last-child td').nth(2).textContent(); step('sort desc arrow; last row price=' + lastCell);
-  await p.hover('#table tbody tr:first-child td:first-child'); assert(await p.locator('#pop').isVisible()); step('hover popover');
+  await p.hover('#table tbody tr:first-child td:first-child'); assert(await p.locator('#pop').isVisible()); assert((await p.locator('#pop').textContent()).includes('Provenance')); step('hover popover with provenance');
   await p.locator('#filters').evaluate(e => e.scrollTop = e.scrollHeight); await p.waitForTimeout(200);
   step('infinite scroll items ' + await p.locator('#boxes label.box').count());
+  // anecdotal asterisk: fresh page, Job: Coding -> Coding › Refactoring
+  await p.goto('file://' + path.join(__dirname, '../index.html'));
+  await box(/^Job: Coding\(/).locator('input').check(); await scrollEnd();
+  await box(/^Job: Coding › Refactoring\(/).locator('input').check();
+  assert((await box(/^Job: Coding › Refactoring\(/).textContent()).includes('*'), 'count shows anecdotal *');
+  assert(await p.locator('#table tbody .anec').count() > 0, 'row asterisk'); step('anecdotal asterisk in checkbox count + row');
   await p.screenshot({ path: path.join(__dirname, 'screenshot.png') });
   assert.deepStrictEqual(errs, []); step('no console errors');
   console.log(ok.map(s => 'PASS ' + s).join('\n')); await b.close();
