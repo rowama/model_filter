@@ -150,8 +150,8 @@
               else if (key === 'unrated' ? v === null : (v !== null && v.has(key))) count++;
             });
             const checked = lvl.checked.includes(key);
-            return { key, label: labelFor(d, key, k), count, checked, disabled: count === 0 && !checked };
-          });
+            return { key, label: labelFor(d, key, k), count, checked };
+          }).filter(o => o.count > 0 || o.checked); // zero-count boxes are hidden unless checked
           const framed = d.kind === 'categorical' && d.multi && lvl.checked.length >= 2;
           groups.push({ id: d.id + ':' + k, dim: d.id, level: k, multi: !!d.multi, options, frame: framed ? { mode: lvl.mode, keys: lvl.checked.slice() } : null });
         });

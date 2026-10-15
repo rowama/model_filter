@@ -77,7 +77,7 @@ Tags are **heuristic**: regex keywords over the name, description and HF tags, p
 
 ## 2. Architecture
 - `js/dims.js`: dimension definitions and taxonomy trees.
-- `js/engine.js`: data access layer. `engine.query(selections) -> { rows, total, groups:[{id, dim, level, multi, options:[{key, label, count, checked, disabled}], frame}], columns, selections }`.
+- `js/engine.js`: data access layer. `engine.query(selections) -> { rows, total, groups:[{id, dim, level, multi, options:[{key, label, count, checked}], frame}], columns, selections }`.
   - `selections = { type, dims: { [dimId]: { levels: [{ checked: [keys], mode: 'all'|'any' }] } }, sort: { col, dir } }`.
   - The returned `selections` is normalized: invalid children are pruned, and dims hidden by the type are passed through untouched.
 - The first implementation (`createLocalEngine`) brute-force scans the embedded JSON (`data/catalog.js`). A DB backend can implement the same request/response shape without UI changes; make it async and await it in `update()`.
@@ -97,7 +97,8 @@ Two panels:
    - Selections in dimensions hidden by a type switch are hidden and preserved, then restored when you switch back. Their refinement levels keep their place in the list.
 2. **Checkboxes only** below the radios. No headers. Each label stands alone and includes the dimension name, e.g. "Context window: 100k–500k tokens (23)".
    - The count is the number of models the box would match, given all other dimensions' current selections and this box's ancestor levels.
-   - Zero-count boxes are greyed out and disabled, not hidden. A checked box stays enabled.
+   - Zero-count boxes are **hidden** (the engine omits them from `options`). Exception: a CHECKED box stays visible even at zero count so it can be unchecked.
+   - Because hiding changes the list length, the clicked box is anchored by adjusting scroll; when the panel is already at scrollTop 0 and boxes above it disappear, it can move up (it always stays visible).
    - Every dimension has an "unrated" box at level 1.
 3. **Order:** weights, license, input price, output price, intelligence, context, jobs, aptitude scores, then maker, params, max output, speed, release, tool calling, JSON, reasoning, runs locally, input modalities, languages, embedding dim. Refinement levels are appended at the bottom in the order they are revealed.
 4. **Refinement chains:** each dimension has levels.
@@ -134,7 +135,7 @@ Two panels:
 - Hovering a row shows a popover with the categorical properties: types, weights, license, jobs, inputs, languages, tools/JSON/reasoning, runs locally, raw benchmark values and percentiles, id, sources.
 
 ## 6. Tests
-- `node tests/engine.test.js`: 15 query-logic tests covering OR within a level, AND across dims, counts, governing level, union child generation (numeric and categorical), uncheck retention, All/Any frame, type hide/restore, shared dims, zero-count disable, sorting, the min-6 rule, and unrated counting.
+- `node tests/engine.test.js`: 15 query-logic tests covering OR within a level, AND across dims, counts, governing level, union child generation (numeric and categorical), uncheck retention, All/Any frame, type hide/restore, shared dims, zero-count hiding (checked zero kept), sorting, the min-6 rule, and unrated counting.
 - `NODE_PATH=<playwright node_modules> node tests/ui.test.js`: headless Chromium end to end, writes `tests/screenshot.png`.
 
 ## 7. Known gaps

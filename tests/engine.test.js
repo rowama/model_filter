@@ -92,10 +92,15 @@ t('All types shows only shared dims; type shows applicable', () => {
   const a = new Set(q(sel('all', {})).groups.map(g => g.dim)); assert(!a.has('context') && !a.has('embedDim') && a.has('weights'));
   const e = new Set(q(sel('embed', {})).groups.map(g => g.dim)); assert(e.has('embedDim') && !e.has('tools'));
 });
-t('Zero-count boxes disabled, not hidden', () => {
-  const r = q(sel('embed', { weights: L(['Closed']) }));
-  const zeros = r.groups.flatMap(g => g.options).filter(o => o.count === 0);
-  assert(zeros.length > 0); zeros.forEach(o => assert(o.disabled || o.checked));
+t('Zero-count boxes hidden; checked zero-count stays visible', () => {
+  let r = q(sel('embed', { weights: L(['Closed']) }));
+  r.groups.flatMap(g => g.options).forEach(o => assert(o.count > 0 || o.checked, 'zero-count unchecked box visible: ' + o.label));
+  const base = q(sel('embed', {}));
+  assert(grp(base, 'license:0').options.some(o => o.key === 'Proprietary'));
+  r = q(sel('embed', { weights: L(['Open']), license: L(['Proprietary']) }));
+  const w = grp(r, 'weights:0').options.find(o => o.key === 'Open');
+  assert(w && w.checked && w.count === 0, 'checked zero box kept');
+  assert(!grp(r, 'weights:0').options.some(o => o.key === 'Closed' && o.count === 0));
 });
 t('Sorting asc/desc with unrated last', () => {
   for (const dir of ['asc', 'desc']) {

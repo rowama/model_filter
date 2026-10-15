@@ -19,12 +19,12 @@ const { chromium } = require('playwright'); const path = require('path'); const 
   // frame
   await box(/^Job: Coding\(/).locator('input').check();
   const wb = box(/^Job: Writing\(/); await wb.scrollIntoViewIfNeeded(); const y0 = (await wb.boundingBox()).y; await wb.locator('input').check();
-  await p.waitForTimeout(300); const y1 = (await box(/^Job: Writing\(/).boundingBox()).y; assert(Math.abs(y1 - y0) < 2, `clicked box moved ${y0}->${y1}`); step('clicked box stays in place when framed');
+  await p.waitForTimeout(300); const y1 = (await box(/^Job: Writing\(/).boundingBox()).y; const st = await p.locator('#filters').evaluate(e => e.scrollTop); assert(Math.abs(y1 - y0) < 2 || (st === 0 && y1 < y0 && y1 >= 0), `clicked box moved ${y0}->${y1} st=${st}`); assert(await box(/^Job: Writing\(/).isVisible()); step(`clicked box anchored/visible (${y0}->${y1}, scrollTop ${st})`);
   await p.waitForTimeout(300);
   assert.strictEqual(await p.locator('.frame').count(), 1); assert.strictEqual(await p.locator('.frame label.box').count(), 2);
   const fAll = await rows(); await p.locator('.frame input[value=any]').check(); const fAny = await rows(); assert(fAny > fAll); step(`All/Any frame all=${fAll} any=${fAny}`);
-  // disabled
-  const dis = await p.locator('#boxes label.box.dis input:disabled').count(); step('greyed disabled boxes ' + dis);
+  const zeroUnchecked = await p.locator('#boxes label.box').evaluateAll(ls => ls.filter(l => l.querySelector('.n').textContent === '(0)' && !l.querySelector('input').checked).length);
+  assert.strictEqual(zeroUnchecked, 0); step('zero-count unchecked boxes hidden');
   // type switch preserve
   await p.check('input[name=type][value=all]'); assert.strictEqual(await p.locator('#boxes', { hasText: 'Context window' }).count(), 0);
   await p.check('input[name=type][value=text]'); assert(await box('Context window: 100k–500k tokens').locator('input').isChecked()); step('type switch hide/restore');

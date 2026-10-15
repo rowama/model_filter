@@ -64,7 +64,7 @@
     return out;
   }
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  const boxHtml = (g, o) => `<label class="box${o.disabled ? ' dis' : ''}${g.level ? ' ref' : ''}" data-k="${esc(g.id + '|' + o.key)}"><input type="checkbox" data-g="${g.id}" data-key="${esc(o.key)}" ${o.checked ? 'checked' : ''} ${o.disabled ? 'disabled' : ''}><span>${esc(o.label)}</span><span class="n">(${o.count})</span></label>`;
+  const boxHtml = (g, o) => `<label class="box${g.level ? ' ref' : ''}" data-k="${esc(g.id + '|' + o.key)}"><input type="checkbox" data-g="${g.id}" data-key="${esc(o.key)}" ${o.checked ? 'checked' : ''}><span>${esc(o.label)}</span><span class="n">(${o.count})</span></label>`;
   function renderBoxes() {
     const its = items(); const shown = its.slice(0, limit);
     $('#boxes').innerHTML = shown.map(it => it.frame

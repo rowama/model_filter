@@ -8,7 +8,6 @@ main{flex:1;display:flex;min-height:0}
 .box{display:flex;gap:6px;align-items:flex-start;padding:2px 4px;border-radius:4px;cursor:pointer}
 .box:hover{background:#f3f5f7}.box input{margin-top:2px}
 .box .n{color:#8a929c;margin-left:auto;padding-left:6px;font-variant-numeric:tabular-nums}
-.box.dis{color:#b5bbc2;cursor:default}.box.dis .n{color:#c9cdd2}
 .box.ref{padding-left:4px}
 .frame{border:1px solid #d7dde4;border-radius:6px;margin:3px 0;padding:2px 2px 4px;background:#f8fafc}
 .frame .modes{display:flex;gap:12px;font-size:11px;color:#59626d;padding:2px 6px 0}
