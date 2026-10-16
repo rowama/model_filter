@@ -100,7 +100,7 @@
   });
   const pop = $('#pop'); let hideT = null;
   const jobLab = k => (dimsById.jobs.lab[k] || k);
-  const showPop = (e, tr) => {
+  const showPop = (tr) => {
     const mo = res.rows[+tr.dataset.i]; const yn = v => v === null || v === undefined ? 'unrated' : v ? 'yes' : 'no';
     const anecOnly = new Set(mo.jobsAnecdotalOnly || []);
     const jobs = mo.jobs.length ? mo.jobs.map(j => esc(jobLab(j)) + (anecOnly.has(j) ? '<span class="anec">*</span>' : '')).join('; ') : 'unrated';
@@ -117,18 +117,52 @@
       (anec ? `<div class="sec">* anecdotal community reports (not used in scores):</div>${anec}` : '') +
       (prov ? `<details><summary>Provenance</summary><div class="prov">${prov}</div></details>` : '');
     pop.hidden = false;
-    const x = Math.min(e.clientX + 14, innerWidth - 470), y = Math.max(8, Math.min(e.clientY + 14, innerHeight - pop.offsetHeight - 8));
-    pop.style.left = x + 'px'; pop.style.top = y + 'px';
   };
-  let curTr = null;
+  // Anchored popover with dwell + safe-triangle intent + lock-on-enter (see SPEC "Row hover popover")
+  const DWELL = 300, GRACE = 200;
+  let curTr = null, locked = false, dwellT = null, pendingTr = null, leavePt = null, lastPt = null;
+  const rowAt = (x, y) => { const el = document.elementFromPoint(x, y); return el && el.closest ? el.closest('#table tbody tr') : null; };
+  function place(tr, x) {
+    const r = tr.getBoundingClientRect(), pw = pop.offsetWidth, ph = pop.offsetHeight;
+    let left = x + 24; if (left + pw > innerWidth - 8) left = Math.max(8, x - 24 - pw);
+    let top = r.top; top = Math.max(8, Math.min(top, innerHeight - ph - 8));
+    pop.style.left = left + 'px'; pop.style.top = top + 'px';
+  }
+  function open(tr, x) { clearTimeout(hideT); clearTimeout(dwellT); pendingTr = null; curTr = tr; showPop(tr); pop.dataset.row = tr.dataset.i; place(tr, x); }
+  function close() { clearTimeout(hideT); clearTimeout(dwellT); pop.hidden = true; curTr = null; locked = false; pendingTr = null; }
+  const sign = (p, a, b) => (p.x - b.x) * (a.y - b.y) - (a.x - b.x) * (p.y - b.y);
+  function towardPop(p) { // safe triangle: point where cursor left current row + popup's near vertical edge
+    if (!leavePt || pop.hidden) return false;
+    const r = pop.getBoundingClientRect(), ex = leavePt.x <= r.left ? r.left : r.right;
+    const A = leavePt, B = { x: ex, y: r.top - 10 }, C = { x: ex, y: r.bottom + 10 };
+    const d1 = sign(p, A, B), d2 = sign(p, B, C), d3 = sign(p, C, A);
+    return !((d1 < 0 || d2 < 0 || d3 < 0) && (d1 > 0 || d2 > 0 || d3 > 0));
+  }
+  function armDwell(tr) {
+    pendingTr = tr; clearTimeout(dwellT);
+    dwellT = setTimeout(() => { if (!locked && lastPt && rowAt(lastPt.x, lastPt.y) === tr) open(tr, lastPt.x); }, DWELL);
+  }
   $('#table tbody').addEventListener('mousemove', e => {
-    const tr = e.target.closest('tr'); if (!tr) return; clearTimeout(hideT);
-    if (tr !== curTr) { curTr = tr; showPop(e, tr); }
+    const p = { x: e.clientX, y: e.clientY }; const tr = e.target.closest('tr'); lastPt = p;
+    if (!tr || locked) return;
+    clearTimeout(hideT);
+    if (pop.hidden) { open(tr, p.x); return; }
+    if (tr === curTr) { leavePt = p; clearTimeout(dwellT); pendingTr = null; return; }
+    if (towardPop(p)) { armDwell(tr); return; }   // moving toward popup: keep postponing retarget
+    if (tr !== pendingTr) armDwell(tr);           // plain dwell on a new row
   });
-  const scheduleHide = () => { clearTimeout(hideT); hideT = setTimeout(() => { pop.hidden = true; curTr = null; }, 350); };
-  $('#table tbody').addEventListener('mouseleave', scheduleHide);
-  pop.addEventListener('mouseenter', () => clearTimeout(hideT));
-  pop.addEventListener('mouseleave', scheduleHide);
+  $('#table tbody').addEventListener('mouseleave', () => { if (!locked) { clearTimeout(hideT); hideT = setTimeout(() => { if (!locked) close(); }, GRACE); } });
+  pop.addEventListener('mouseenter', () => { locked = true; clearTimeout(hideT); clearTimeout(dwellT); pendingTr = null; });
+  pop.addEventListener('mouseleave', e => {
+    locked = false; leavePt = null; clearTimeout(hideT);
+    const tr = rowAt(e.clientX, e.clientY); lastPt = { x: e.clientX, y: e.clientY };
+    if (tr && tr === curTr) return;
+    if (tr) armDwell(tr);
+    hideT = setTimeout(() => { if (!locked && !(lastPt && rowAt(lastPt.x, lastPt.y))) close(); }, GRACE);
+  });
+  pop.addEventListener('toggle', () => { const ph = pop.offsetHeight, t = parseFloat(pop.style.top) || 8; pop.style.top = Math.max(8, Math.min(t, innerHeight - ph - 8)) + 'px'; }, true); // keep in viewport when Provenance expands
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !pop.hidden) close(); });
+  const _renderTable = renderTable; renderTable = function () { close(); _renderTable(); };
   window.MF_APP = { getState: () => state, engine };
   update();
 })();

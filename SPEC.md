@@ -175,10 +175,18 @@ Two panels:
 - Table with Model, Maker, one column per visible numeric dimension, and Comments.
 - Click a header to sort. Click again to toggle asc/desc (▲/▼). Unrated always sorts last.
 - Hovering a row shows a popover with the categorical properties: types, weights, license, jobs, inputs, languages, tools/JSON/reasoning, runs locally, raw benchmark values and percentiles, id, sources.
+- **Row hover popover behaviour** (`js/app.js`):
+  1. **Anchored:** it opens beside the hovered row, top-aligned with the row, 24px to the right of the cursor (or to the left if there is no room). It stays put once shown and does not follow the cursor.
+  2. **Dwell:** it moves to a new row only after the cursor rests on that row for about 300ms.
+  3. **Safe triangle (intent):** a triangle runs from the last cursor point on the current row to the popup's near edge. While the cursor moves inside it, the popup does not switch rows. If the cursor stops on a row for about 300ms, it switches.
+  4. **Lock:** once the cursor is inside the popup, it stays locked and can be clicked (links, Provenance). On leaving, it hides after about 200ms, or switches to the row under the cursor after the dwell time.
+  5. **Esc** closes it.
+  6. It always stays inside the viewport, including after Provenance expands. Re-rendering the table closes it.
 
 ## 6. Tests
 - `node tests/engine.test.js`: 15 query-logic tests covering OR within a level, AND across dims, counts, governing level, union child generation (numeric and categorical), uncheck retention, All/Any frame, type hide/restore, shared dims, zero-count hiding (checked zero kept), sorting, the min-6 rule, and unrated counting.
 - `node tests/enrich.test.js`: anecdotal tags (counted as tagged, `anecdotal` count, row flag), the estimated-params flag and its formatting, and catalog checks (provenance, no community evidence feeding scores, URLs on evidence).
+- `NODE_PATH=<playwright node_modules> node tests/popover.test.js`: popover intent. Checks that the popup stays anchored, a quick or slow move across other rows into the popup does not switch rows, clicking Provenance works inside the viewport, switching happens only after the dwell time, a brief pass over a row is ignored, Esc closes it, and it hides after the grace period.
 - `NODE_PATH=<playwright node_modules> node tests/ui.test.js`: headless Chromium end to end, writes `tests/screenshot.png`.
 
 ## 7. Known gaps
