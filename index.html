@@ -5,14 +5,18 @@
 <meta name="mf-default-config" content="models.yaml">
 <link rel="stylesheet" href="css/style.css"></head>
 <body>
-<header><h1 id="title">Filter</h1><span id="meta"></span><span id="resultCount"></span></header>
+<header><div class="menuwrap"><button type="button" id="menu-btn" aria-label="Menu" aria-haspopup="menu" aria-expanded="false" aria-controls="menu">☰</button>
+  <ul id="menu" role="menu" aria-label="App menu" hidden></ul></div><h1 id="title">Filter</h1><span id="meta"></span><span id="resultCount"></span></header>
 <div id="warnings" hidden></div>
-<section id="loader" hidden>
+<section id="loader" hidden role="dialog" aria-label="Load a config">
+  <button type="button" id="loader-close" aria-label="Close" hidden>×</button>
   <h2>Load a config</h2>
+  <form id="path-form" hidden><label>Open by path <input id="path-input" placeholder="e.g. examples/books.yaml" size="40"></label> <button type="submit">Open</button></form>
   <p>Choose the YAML config together with its dataset (JSON/CSV) and any taxonomy files, or pick the folder that contains them. Served over http you can also use <code>?config=path.yaml</code>.</p>
   <div id="drop">Drop the YAML + dataset files (or a folder) here
-    <div class="btns"><label class="btn">Choose files…<input type="file" id="pick-files" multiple accept=".yaml,.yml,.json,.csv"></label>
+    <div class="btns"><label class="btn" id="pick-files-btn" tabindex="0">Choose files…<input type="file" id="pick-files" multiple accept=".yaml,.yml,.json,.csv"></label>
     <label class="btn">Choose folder…<input type="file" id="pick-folder" webkitdirectory directory multiple></label>
+    <button type="button" id="fsa-files" hidden>Open with file access…</button><button type="button" id="fsa-folder" hidden>Folder with file access…</button>
     <button type="button" id="reset">Start over</button></div></div>
   <div id="need" hidden></div>
   <div id="errors" hidden></div>

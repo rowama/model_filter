@@ -3,6 +3,7 @@
 (function (root) {
   function createHoverPopover(o) {
     const { pop, container, selector, keyOf, render, anchor, onOpen, onClose, DWELL = 300, GRACE = 200 } = o;
+    const ac = new AbortController(), sig = { signal: ac.signal }; // destroy() removes every listener
     let curKey = null, locked = false, dwellT = null, hideT = null, pendingKey = null, leavePt = null, lastPt = null;
     const targetAt = (x, y) => { const el = document.elementFromPoint(x, y); const t = el && el.closest ? el.closest(selector) : null; return t && container.contains(t) ? t : null; };
     const elFor = k => [...container.querySelectorAll(selector)].find(e => keyOf(e) === k);
@@ -48,20 +49,21 @@
       if (k === curKey) { leavePt = p; clearTimeout(dwellT); pendingKey = null; return; }
       if (towardPop(p)) { armDwell(k); return; }
       if (k !== pendingKey) armDwell(k);
-    });
-    container.addEventListener('mouseleave', () => { if (!locked) { clearTimeout(hideT); hideT = setTimeout(() => { if (!locked) close(); }, GRACE); } });
-    pop.addEventListener('mouseenter', () => { locked = true; clearTimeout(hideT); clearTimeout(dwellT); pendingKey = null; });
+    }, sig);
+    container.addEventListener('mouseleave', () => { if (!locked) { clearTimeout(hideT); hideT = setTimeout(() => { if (!locked) close(); }, GRACE); } }, sig);
+    pop.addEventListener('mouseenter', () => { locked = true; clearTimeout(hideT); clearTimeout(dwellT); pendingKey = null; }, sig);
     pop.addEventListener('mouseleave', e => {
       locked = false; leavePt = null; clearTimeout(hideT);
       lastPt = { x: e.clientX, y: e.clientY }; const t = targetAt(e.clientX, e.clientY);
       if (t && keyOf(t) === curKey) return;
       if (t) armDwell(keyOf(t));
       hideT = setTimeout(() => { if (!locked && !(lastPt && targetAt(lastPt.x, lastPt.y))) close(); }, GRACE);
-    });
-    pop.addEventListener('toggle', clamp, true);
-    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !pop.hidden) close(); });
+    }, sig);
+    pop.addEventListener('toggle', clamp, { capture: true, signal: ac.signal });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !pop.hidden) close(); }, sig);
     return { open: (k, x) => { const el = elFor(k); if (el) open(el, x || el.getBoundingClientRect().right); }, close, refresh, clamp,
-      isOpen: () => !pop.hidden, key: () => curKey, isLocked: () => locked };
+      isOpen: () => !pop.hidden, key: () => curKey, isLocked: () => locked,
+      destroy: () => { clearTimeout(dwellT); clearTimeout(hideT); ac.abort(); pop.hidden = true; curKey = null; locked = false; } };
   }
   root.MF_HOVERPOP = { createHoverPopover };
 })(typeof window !== 'undefined' ? window : globalThis);

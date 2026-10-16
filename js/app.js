@@ -1,6 +1,7 @@
 // Generic UI: renders whatever the compiled spec (js/runtime.js) describes. No dataset-specific code.
 (function (root) {
   function mount(spec) {
+    if (root.MF_APP && root.MF_APP.destroy) root.MF_APP.destroy(); // replacing a running config: full reset
     const engine = MF_ENGINE.createLocalEngine(spec);
     const dimsById = spec.facetById, T = spec.types;
     let state = { type: T ? T.all.id : 'all', dims: {}, sort: spec.table.defaultSort };
@@ -106,7 +107,12 @@
     }
     $('#app').hidden = false;
     update();
-    root.MF_APP = { getState: () => state, engine, spec, rows: spec.rows, facetPop, rowPop, ready: true };
+    function destroy() {
+      facetPop.destroy(); rowPop.destroy();
+      ['#facets', '#fpop', '#pop', '#table thead', '#table tbody', '#types'].forEach(s => { $(s).innerHTML = ''; });
+      $('#resultCount').textContent = ''; root.MF_APP = null;
+    }
+    root.MF_APP = { getState: () => state, engine, spec, rows: spec.rows, facetPop, rowPop, ready: true, destroy };
     return root.MF_APP;
   }
   root.MF_UI = { mount };

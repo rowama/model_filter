@@ -14,6 +14,19 @@ The UI in `js/` is a generic engine. **Everything** about the data comes from on
 | Over http with no `?config` | The page's `<meta name="mf-default-config">` (`models.yaml`). |
 | `index.html` from `file://` | A loader with **Choose files…** (multi-select), **Choose folder…** and **drag-and-drop** (files or folders). Browsers can't read sibling files from `file://`, so select the YAML together with its dataset and taxonomy files, or pick the folder. If you pick the YAML alone, the loader names the next file it needs. If several configs are selected, it asks which one to use. |
 
+### Switching configs at runtime (☰ menu, top-left)
+- **Load YAML…** opens the same loader as a dialog over the running app: multi-file picker, folder picker, drag-and-drop, and prompts for missing dataset or taxonomy files. In Chrome there are also **Open with file access…** / **Folder with file access…** buttons (File System Access API).
+- **Open by path…** (http only) loads `path.yaml` relative to the page and updates `?config=` with `history.replaceState`.
+- **Reload current** re-reads the current source: path (refetched), embedded default, or picked files.
+- **Load default (embedded)** appears in the single-file build only.
+- **Recent** keeps up to 5 entries in `localStorage`.
+  - Path entries reload by path over http.
+  - Entries opened with file access keep their handles in IndexedDB. They reopen after the browser's permission prompt.
+  - Other picked-file entries are re-pick hints: the loader opens and tells you which file to choose.
+- **What gets reset:** a new config replaces the running one without a page reload. Selections, type, sort, popups and highlight are all reset, and its own default sort applies.
+- **Failed loads:** the new config is fully loaded and validated first. If that fails (YAML or schema errors, a missing file, HTTP 404), the errors appear in the error box and the current config stays loaded.
+- **Closing and keyboard:** the menu closes on Esc (focus returns to ☰) or a click outside. It is keyboard accessible: Enter/Space/ArrowDown open it, and ArrowUp/ArrowDown/Home/End move between items. Esc also closes the loader dialog while a config is running.
+
 Build a single file for another config with `python3 scripts/build_single.py examples/books.yaml dist/books.html`.
 
 **Errors:** YAML syntax errors (with line and column), schema violations and semantic problems are listed in a red box. Each message has a path, for example `x.yaml: facets[0].kind: must be one of numeric, categorical, boolean`, or `facets[1].colour: unknown key (allowed: …)`. A facet `field` that no record has shows a non-fatal yellow warning. A record without the `dataset.id` field is a fatal error.

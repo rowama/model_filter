@@ -55,3 +55,15 @@ td .u{color:#a6adb5;font-style:italic}tr:hover td{background:#f5f8ff}
 #errors ul{margin:4px 0 0;padding-left:18px}
 #warnings{padding:4px 16px;background:#fff8e1;color:#7a5b00;font-size:12px;border-bottom:1px solid #f0d98a}
 th.nosort{cursor:default}
+/* hamburger menu */
+.menuwrap{position:relative;align-self:center}
+#menu-btn{font-size:16px;line-height:1;padding:2px 7px;border:1px solid #d7dde4;border-radius:4px;background:#fff;cursor:pointer}
+#menu-btn:focus-visible,#menu button:focus-visible{outline:2px solid #4a7bd0;outline-offset:1px}
+#menu{position:absolute;left:0;top:calc(100% + 4px);z-index:20;min-width:260px;margin:0;padding:4px 0;list-style:none;background:#fff;border:1px solid #d7dde4;border-radius:6px;box-shadow:0 6px 20px rgba(0,0,0,.12)}
+#menu button{display:block;width:100%;text-align:left;padding:5px 12px;border:0;background:none;font:inherit;cursor:pointer}
+#menu button:hover,#menu button:focus{background:#f2f6fd}#menu button[disabled]{color:#a6adb5;cursor:default}
+#menu .sep{padding:6px 12px 2px;border-top:1px solid #eef0f2;margin-top:4px;color:#8a929c;font-size:11px;text-transform:uppercase}
+#menu .none{padding:3px 12px;color:#a6adb5}#menu .rp{color:#8a929c;font-size:11px;margin-left:6px}
+#loader.overlay{position:fixed;left:50%;top:60px;transform:translateX(-50%);z-index:30;width:760px;max-width:95vw;margin:0;box-shadow:0 10px 40px rgba(0,0,0,.2)}
+#loader{position:relative}#loader-close{position:absolute;right:8px;top:6px;border:0;background:none;font-size:18px;cursor:pointer}
+#path-form{margin:0 0 10px}
