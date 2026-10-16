@@ -15,7 +15,8 @@ main{flex:1;display:flex;min-height:0}
 #results{flex:1;overflow:auto}
 table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
 th{position:sticky;top:0;background:#f3f5f7;text-align:left;font-weight:600;padding:6px 8px;border-bottom:1px solid #dde1e6;cursor:pointer;white-space:nowrap;user-select:none}
-th .arr{color:#3b6fd6;margin-left:3px}
+th .arr{color:#3b6fd6;margin-left:3px}th.a-right .arr{margin:0 3px 0 0}
+th.a-right,td.a-right{text-align:right}th.a-center,td.a-center{text-align:center}th.a-left,td.a-left{text-align:left}
 td{padding:4px 8px;border-bottom:1px solid #eef0f2;white-space:nowrap}
 td.num{text-align:right}td.c{white-space:normal;color:#59626d;font-size:12px;min-width:260px}
 td .u{color:#a6adb5;font-style:italic}tr:hover td{background:#f5f8ff}

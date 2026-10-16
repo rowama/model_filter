@@ -103,8 +103,8 @@
       const out = [];
       for (const c of spec.table.columns) {
         if (c.facets) vis.filter(d => d.column !== false && (c.facets === 'all' || d.kind === 'numeric'))
-          .forEach(d => out.push({ id: d.id, label: (d.column && d.column.label) || d.label, numeric: d.kind === 'numeric', facet: true, sortable: c.sortable !== false }));
-        else out.push({ id: c.field, label: c.label, numeric: false, cls: c.class || '', sortable: c.sortable !== false, cfg: c });
+          .forEach(d => out.push({ id: d.id, label: (d.column && d.column.label) || d.label, numeric: d.kind === 'numeric', align: (d.column && d.column.align) || (d.kind === 'numeric' ? 'right' : 'left'), facet: true, sortable: c.sortable !== false }));
+        else out.push({ id: c.field, label: c.label, numeric: false, align: c.align || (c.format ? 'right' : 'left'), cls: c.class || '', sortable: c.sortable !== false, cfg: c });
       }
       return out;
     }

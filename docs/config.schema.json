@@ -675,6 +675,14 @@
                   "label": {
                     "type": "string"
                   },
+                  "align": {
+                    "enum": [
+                      "left",
+                      "center",
+                      "right"
+                    ],
+                    "description": "Header + cell alignment (default: right for numeric facets and formatted fields, else left)."
+                  },
                   "format": {
                     "description": "Number format.",
                     "type": "object",
@@ -762,6 +770,14 @@
                   },
                   "label": {
                     "type": "string"
+                  },
+                  "align": {
+                    "enum": [
+                      "left",
+                      "center",
+                      "right"
+                    ],
+                    "description": "Header + cell alignment (default: right for numeric facets and formatted fields, else left)."
                   },
                   "class": {
                     "type": "string"

@@ -83,9 +83,10 @@
     function renderTable() {
       rowPop.close();
       const s = state.sort || {};
-      $('#table thead').innerHTML = '<tr>' + res.columns.map(c => `<th data-col="${esc(c.id)}"${c.sortable ? '' : ' class="nosort"'}>${esc(c.label)}${s.col === c.id ? `<span class="arr">${s.dir === 'desc' ? '▼' : '▲'}</span>` : ''}</th>`).join('') + '</tr>';
+      $('#table thead').innerHTML = '<tr>' + res.columns.map(c => { const arr = s.col === c.id ? `<span class="arr">${s.dir === 'desc' ? '▼' : '▲'}</span>` : ''; // arrow on the outer side so right-aligned text lines up with the numbers
+        return `<th data-col="${esc(c.id)}" class="a-${c.align}${c.sortable ? '' : ' nosort'}">${c.align === 'right' ? arr + `<span class="lbl">${esc(c.label)}</span>` : `<span class="lbl">${esc(c.label)}</span>` + arr}</th>`; }).join('') + '</tr>';
       $('#table tbody').innerHTML = res.rows.map((mo, i) => '<tr data-i="' + i + '">' + res.columns.map(c =>
-        `<td class="${c.numeric ? 'num' : ''}${c.cls ? ' ' + esc(c.cls) : ''}">${spec.formatCell(c, mo, c.facet ? engine.value(mo, c.id) : null, res.rowFlags[idOf(mo)])}</td>`).join('') + '</tr>').join('');
+        `<td class="a-${c.align}${c.numeric ? ' num' : ''}${c.cls ? ' ' + esc(c.cls) : ''}">${spec.formatCell(c, mo, c.facet ? engine.value(mo, c.id) : null, res.rowFlags[idOf(mo)])}</td>`).join('') + '</tr>').join('');
       $('#resultCount').textContent = spec.resultsText(res.rows.length, res.total);
     }
     $('#table thead').onclick = e => {

@@ -104,7 +104,7 @@ Children become the next refinement level. Leaves have no children.
 | `value_labels` | categorical | `path` (default, `Job: Coding › Refactoring`) or `leaf` (`Available from: OpenRouter`). |
 | `bool_labels` | boolean | `{yes: Yes, no: No}`. Option keys are `yes`/`no`. |
 | `anecdotal` | categorical | `{exclude_field, marker: "*", row_flag_title}`. Values listed in `exclude_field` still count as tagged (they filter in), but they are also counted separately (`(12 · 3*)`). Matching rows get the marker in any column with `row_flag_marker: true`, and the `tags` filter marks those values in popups. |
-| `column` | all | `false` hides the facet's table column. Otherwise `{label, format, display_field, estimated}`. `display_field` shows a raw field (e.g. a date string) while sorting by the numeric value. `estimated: {flag_field, template: "~{value}B (est.)", title_field}` is used when the flag is true. The cell format defaults to `{kind: precision, digits: 4}`. |
+| `column` | all | `false` hides the facet's table column. Otherwise `{label, align, format, display_field, estimated}`. `align` is `left`, `center` or `right`; the default is right for numeric facets. The header uses the same alignment as its cells. `display_field` shows a raw field (e.g. a date string) while sorting by the numeric value. `estimated: {flag_field, template: "~{value}B (est.)", title_field}` is used when the flag is true. The cell format defaults to `{kind: precision, digits: 4}`. |
 
 Refinement chain (all facets): within a level, checked boxes are OR'd. Checking reveals the next level, built from the **union** of the checked parents. Only the deepest checked level governs. Facets are AND'd together. Unchecked options with zero matches are hidden, but checked ones stay visible.
 
@@ -127,7 +127,7 @@ table:
   default_sort: {col: title, dir: asc}   # or null
   unrated_last: true                     # missing values sort last in both directions
 ```
-Click a header to sort. Click again to toggle asc/desc (▲/▼). Facet columns sort by the facet value, field columns by the raw field.
+Field columns take an optional `align` (`left`, `center` or `right`); the default is right when the column has a `format`, otherwise left. A header always uses its column's alignment. On right-aligned headers the sort arrow sits on the left, so the label's right edge lines up with the numbers. Click a header to sort. Click again to toggle asc/desc (▲/▼). Facet columns sort by the facet value, field columns by the raw field.
 
 ## row_popup.sections (in order)
 | type | keys | renders |

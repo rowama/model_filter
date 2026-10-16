@@ -5,6 +5,7 @@
   const format = { description: 'Number format.', type: 'object', additionalProperties: false, required: ['kind'], properties: {
     kind: { enum: ['plain', 'si', 'money', 'precision', 'fixed', 'yearmonth'], description: 'plain=String(v); si=1.2M/128k; money=$0.15/$2.50; precision=toPrecision(digits); fixed=toFixed(digits); yearmonth=fractional year -> YYYY-MM' },
     digits: { type: 'integer', minimum: 0, maximum: 20 }, prefix: { type: 'string' }, suffix: { type: 'string' } } };
+  const align = { enum: ['left', 'center', 'right'], description: 'Header + cell alignment (default: right for numeric facets and formatted fields, else left).' };
   const treeNode = { type: 'object', additionalProperties: false, required: ['key'], properties: {
     key: { type: ['string', 'number', 'boolean'] }, label: { type: 'string' }, children: { type: 'array', items: { $ref: '#/definitions/treeNode' } } } };
   const tree = { description: 'Taxonomy tree: inline node list, {ref: <taxonomies key>}, {path: file.yaml|json}, or {generate: ...}.', anyOf: [
@@ -60,11 +61,11 @@
         tree: { $ref: '#/definitions/tree' }, value_labels: { enum: ['path', 'leaf'] },
         bool_labels: { type: 'object', additionalProperties: false, properties: { yes: { type: 'string' }, no: { type: 'string' } } },
         anecdotal: { type: 'object', additionalProperties: false, required: ['exclude_field'], properties: { exclude_field: { type: 'string', description: 'Field listing values that are ONLY anecdotal.' }, marker: { type: 'string' }, row_flag_title: { type: 'string' } } },
-        column: { anyOf: [{ const: false }, { type: 'object', additionalProperties: false, properties: { label: { type: 'string' }, format, display_field: { type: 'string' },
+        column: { anyOf: [{ const: false }, { type: 'object', additionalProperties: false, properties: { label: { type: 'string' }, align, format, display_field: { type: 'string' },
           estimated: { type: 'object', additionalProperties: false, required: ['flag_field', 'template'], properties: { flag_field: { type: 'string' }, template: tpl, title_field: { type: 'string' } } } } }] } } } },
       table: { type: 'object', additionalProperties: false, required: ['columns'], properties: {
         columns: { type: 'array', minItems: 1, items: { anyOf: [
-          { type: 'object', additionalProperties: false, required: ['field', 'label'], properties: { field: { type: 'string' }, label: { type: 'string' }, class: { type: 'string' }, sortable: { type: 'boolean' }, row_flag_marker: { type: 'boolean' }, format, template: tpl } },
+          { type: 'object', additionalProperties: false, required: ['field', 'label'], properties: { field: { type: 'string' }, label: { type: 'string' }, align, class: { type: 'string' }, sortable: { type: 'boolean' }, row_flag_marker: { type: 'boolean' }, format, template: tpl } },
           { type: 'object', additionalProperties: false, required: ['facets'], properties: { facets: { enum: ['numeric', 'all'] }, sortable: { type: 'boolean' } } }] } },
         default_sort: { anyOf: [{ type: 'null' }, { type: 'object', additionalProperties: false, required: ['col'], properties: { col: { type: 'string' }, dir: { enum: ['asc', 'desc'] } } }] },
         unrated_last: { type: 'boolean' } } },

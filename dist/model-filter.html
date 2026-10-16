@@ -20,7 +20,8 @@ main{flex:1;display:flex;min-height:0}
 #results{flex:1;overflow:auto}
 table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
 th{position:sticky;top:0;background:#f3f5f7;text-align:left;font-weight:600;padding:6px 8px;border-bottom:1px solid #dde1e6;cursor:pointer;white-space:nowrap;user-select:none}
-th .arr{color:#3b6fd6;margin-left:3px}
+th .arr{color:#3b6fd6;margin-left:3px}th.a-right .arr{margin:0 3px 0 0}
+th.a-right,td.a-right{text-align:right}th.a-center,td.a-center{text-align:center}th.a-left,td.a-left{text-align:left}
 td{padding:4px 8px;border-bottom:1px solid #eef0f2;white-space:nowrap}
 td.num{text-align:right}td.c{white-space:normal;color:#59626d;font-size:12px;min-width:260px}
 td .u{color:#a6adb5;font-style:italic}tr:hover td{background:#f5f8ff}
@@ -97,6 +98,7 @@ window.MF_EMBED = {"config": "models.yaml", "files": {"models.yaml": "# Model Fi
   const format = { description: 'Number format.', type: 'object', additionalProperties: false, required: ['kind'], properties: {
     kind: { enum: ['plain', 'si', 'money', 'precision', 'fixed', 'yearmonth'], description: 'plain=String(v); si=1.2M/128k; money=$0.15/$2.50; precision=toPrecision(digits); fixed=toFixed(digits); yearmonth=fractional year -> YYYY-MM' },
     digits: { type: 'integer', minimum: 0, maximum: 20 }, prefix: { type: 'string' }, suffix: { type: 'string' } } };
+  const align = { enum: ['left', 'center', 'right'], description: 'Header + cell alignment (default: right for numeric facets and formatted fields, else left).' };
   const treeNode = { type: 'object', additionalProperties: false, required: ['key'], properties: {
     key: { type: ['string', 'number', 'boolean'] }, label: { type: 'string' }, children: { type: 'array', items: { $ref: '#/definitions/treeNode' } } } };
   const tree = { description: 'Taxonomy tree: inline node list, {ref: <taxonomies key>}, {path: file.yaml|json}, or {generate: ...}.', anyOf: [
@@ -152,11 +154,11 @@ window.MF_EMBED = {"config": "models.yaml", "files": {"models.yaml": "# Model Fi
         tree: { $ref: '#/definitions/tree' }, value_labels: { enum: ['path', 'leaf'] },
         bool_labels: { type: 'object', additionalProperties: false, properties: { yes: { type: 'string' }, no: { type: 'string' } } },
         anecdotal: { type: 'object', additionalProperties: false, required: ['exclude_field'], properties: { exclude_field: { type: 'string', description: 'Field listing values that are ONLY anecdotal.' }, marker: { type: 'string' }, row_flag_title: { type: 'string' } } },
-        column: { anyOf: [{ const: false }, { type: 'object', additionalProperties: false, properties: { label: { type: 'string' }, format, display_field: { type: 'string' },
+        column: { anyOf: [{ const: false }, { type: 'object', additionalProperties: false, properties: { label: { type: 'string' }, align, format, display_field: { type: 'string' },
           estimated: { type: 'object', additionalProperties: false, required: ['flag_field', 'template'], properties: { flag_field: { type: 'string' }, template: tpl, title_field: { type: 'string' } } } } }] } } } },
       table: { type: 'object', additionalProperties: false, required: ['columns'], properties: {
         columns: { type: 'array', minItems: 1, items: { anyOf: [
-          { type: 'object', additionalProperties: false, required: ['field', 'label'], properties: { field: { type: 'string' }, label: { type: 'string' }, class: { type: 'string' }, sortable: { type: 'boolean' }, row_flag_marker: { type: 'boolean' }, format, template: tpl } },
+          { type: 'object', additionalProperties: false, required: ['field', 'label'], properties: { field: { type: 'string' }, label: { type: 'string' }, align, class: { type: 'string' }, sortable: { type: 'boolean' }, row_flag_marker: { type: 'boolean' }, format, template: tpl } },
           { type: 'object', additionalProperties: false, required: ['facets'], properties: { facets: { enum: ['numeric', 'all'] }, sortable: { type: 'boolean' } } }] } },
         default_sort: { anyOf: [{ type: 'null' }, { type: 'object', additionalProperties: false, required: ['col'], properties: { col: { type: 'string' }, dir: { enum: ['asc', 'desc'] } } }] },
         unrated_last: { type: 'boolean' } } },
@@ -584,8 +586,8 @@ window.MF_EMBED = {"config": "models.yaml", "files": {"models.yaml": "# Model Fi
       const out = [];
       for (const c of spec.table.columns) {
         if (c.facets) vis.filter(d => d.column !== false && (c.facets === 'all' || d.kind === 'numeric'))
-          .forEach(d => out.push({ id: d.id, label: (d.column && d.column.label) || d.label, numeric: d.kind === 'numeric', facet: true, sortable: c.sortable !== false }));
-        else out.push({ id: c.field, label: c.label, numeric: false, cls: c.class || '', sortable: c.sortable !== false, cfg: c });
+          .forEach(d => out.push({ id: d.id, label: (d.column && d.column.label) || d.label, numeric: d.kind === 'numeric', align: (d.column && d.column.align) || (d.kind === 'numeric' ? 'right' : 'left'), facet: true, sortable: c.sortable !== false }));
+        else out.push({ id: c.field, label: c.label, numeric: false, align: c.align || (c.format ? 'right' : 'left'), cls: c.class || '', sortable: c.sortable !== false, cfg: c });
       }
       return out;
     }
@@ -806,9 +808,10 @@ window.MF_EMBED = {"config": "models.yaml", "files": {"models.yaml": "# Model Fi
     function renderTable() {
       rowPop.close();
       const s = state.sort || {};
-      $('#table thead').innerHTML = '<tr>' + res.columns.map(c => `<th data-col="${esc(c.id)}"${c.sortable ? '' : ' class="nosort"'}>${esc(c.label)}${s.col === c.id ? `<span class="arr">${s.dir === 'desc' ? '▼' : '▲'}<\/span>` : ''}<\/th>`).join('') + '<\/tr>';
+      $('#table thead').innerHTML = '<tr>' + res.columns.map(c => { const arr = s.col === c.id ? `<span class="arr">${s.dir === 'desc' ? '▼' : '▲'}<\/span>` : ''; // arrow on the outer side so right-aligned text lines up with the numbers
+        return `<th data-col="${esc(c.id)}" class="a-${c.align}${c.sortable ? '' : ' nosort'}">${c.align === 'right' ? arr + `<span class="lbl">${esc(c.label)}<\/span>` : `<span class="lbl">${esc(c.label)}<\/span>` + arr}<\/th>`; }).join('') + '<\/tr>';
       $('#table tbody').innerHTML = res.rows.map((mo, i) => '<tr data-i="' + i + '">' + res.columns.map(c =>
-        `<td class="${c.numeric ? 'num' : ''}${c.cls ? ' ' + esc(c.cls) : ''}">${spec.formatCell(c, mo, c.facet ? engine.value(mo, c.id) : null, res.rowFlags[idOf(mo)])}<\/td>`).join('') + '<\/tr>').join('');
+        `<td class="a-${c.align}${c.numeric ? ' num' : ''}${c.cls ? ' ' + esc(c.cls) : ''}">${spec.formatCell(c, mo, c.facet ? engine.value(mo, c.id) : null, res.rowFlags[idOf(mo)])}<\/td>`).join('') + '<\/tr>').join('');
       $('#resultCount').textContent = spec.resultsText(res.rows.length, res.total);
     }
     $('#table thead').onclick = e => {
