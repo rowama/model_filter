@@ -118,4 +118,27 @@ t('Unrated never fabricated: unrated option counts nulls', () => {
   const r = q(sel('text', {})); const o = grp(r, 'intelligence:0').options.find(o => o.key === 'unrated');
   assert.strictEqual(o.count, r.rows.filter(m => m.intelligence === null).length);
 });
+t('Available from: facet in All types, taxonomy + standalone labels', () => {
+  const r = q(sel('all', {}));
+  const g = grp(r, 'availableFrom:0'); assert(g, 'facet visible in All types');
+  const labels = g.options.map(o => o.label);
+  ['Available from: Direct from maker', 'Available from: Aggregators', 'Available from: Cloud platforms', 'Available from: Self-host (open weights download)'].forEach(l => assert(labels.includes(l), l));
+  const r2 = q(sel('all', { availableFrom: L(['avail.agg']) }));
+  const kids = grp(r2, 'availableFrom:1').options; assert(kids.some(o => o.label === 'Available from: OpenRouter'));
+  r2.rows.forEach(m => assert(m.availableFrom.some(a => a.startsWith('agg:'))));
+});
+t('Available from: multi-valued All/Any frame + governing level-2', () => {
+  const all = q(sel('all', { availableFrom: L({ checked: ['avail.direct', 'avail.cloud'], mode: 'all' }) }));
+  assert(grp(all, 'availableFrom:0').frame);
+  all.rows.forEach(m => assert(m.availableFrom.some(a => a.startsWith('direct:')) && m.availableFrom.some(a => a.startsWith('cloud:'))));
+  const any = q(sel('all', { availableFrom: L({ checked: ['avail.direct', 'avail.cloud'], mode: 'any' }) }));
+  assert(any.rows.length > all.rows.length);
+  const lv2 = q(sel('all', { availableFrom: L(['avail.cloud'], ['cloud:AWS Bedrock']) }));
+  assert(lv2.rows.length > 0); lv2.rows.forEach(m => assert(m.availableFrom.includes('cloud:AWS Bedrock')));
+});
+t('Available from: provenance recorded, Maker facet unchanged', () => {
+  CATALOG.models.forEach(m => { if (m.availableFrom) assert(m.prov.availableFrom, m.id); });
+  CATALOG.models.filter(m => (m.availableFrom || []).includes('self:Hugging Face (download)')).forEach(m => assert.strictEqual(m.weights, 'Open'));
+  assert(grp(q(sel('all', {})), 'maker:0').options.some(o => o.label === 'Maker: openai'));
+});
 console.log(`\n${pass} passed, ${fail} failed`); process.exit(fail ? 1 : 0);

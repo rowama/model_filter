@@ -10,7 +10,7 @@
   const fmtYM = v => { const y = Math.floor(v + 1e-9), m = Math.round((v - y) * 12) + 1; return y + '-' + String(m).padStart(2, '0'); };
   const ym = s => s ? (+s.slice(0, 4)) + (+s.slice(5, 7) - 1) / 12 : null;
   const num = (id, label, field, top, opts = {}) => ({ id, label, field, kind: 'numeric', top, types: opts.types || ALL, fmt: opts.fmt || (v => String(v)), unit: opts.unit || '', get: opts.get, col: opts.col || label, step: opts.step });
-  const cat = (id, label, field, tree, opts = {}) => ({ id, label, field, kind: 'categorical', multi: !!opts.multi, tree, types: opts.types || ALL, show: opts.show, get: opts.get, strictGet: opts.strictGet });
+  const cat = (id, label, field, tree, opts = {}) => ({ id, label, field, kind: 'categorical', multi: !!opts.multi, tree, types: opts.types || ALL, show: opts.show, get: opts.get, strictGet: opts.strictGet, leafLabels: !!opts.leafLabels });
   const yesno = [{ key: 'yes', label: 'Yes' }, { key: 'no', label: 'No' }];
   const boolGet = f => m => m[f] === null || m[f] === undefined ? null : (m[f] ? 'yes' : 'no');
   const JOBS = [
@@ -53,6 +53,7 @@
     num('aptTTS', 'Speech quality score (TTS Arena)', 'aptTTS', [[0, 25], [25, 50], [50, 75], [75, Infinity]], { types: ['tts'], col: 'TTS' }),
     num('aptImageGen', 'Image-gen score', 'aptImageGen', [[0, 25], [25, 50], [50, 75], [75, Infinity]], { types: ['t2i'], col: 'ImgGen' }),
     cat('maker', 'Maker', 'maker', null),
+    cat('availableFrom', 'Available from', 'availableFrom', null, { multi: true, leafLabels: true }),
     num('params', 'Parameters', 'params', [[0, 3], [3, 15], [15, 80], [80, Infinity]], { unit: 'B', fmt: v => String(v), col: 'Params B' }),
     num('maxOut', 'Max output', 'maxOut', [[0, 8192], [8192, 32768], [32768, 131072], [131072, Infinity]], { types: TXT, fmt: fmtK, unit: ' tokens', col: 'Max out' }),
     num('speed', 'Speed', 'speed', [[0, 50], [50, 100], [100, 200], [200, Infinity]], { types: TXT, unit: ' tok/s', col: 'tok/s' }),
@@ -81,6 +82,13 @@
     for (const d of DIMS) {
       if (d.id === 'maker') d.tree = topN('maker', 15, k => k);
       if (d.id === 'languages') d.tree = topN('languages', 12, k => k);
+      if (d.id === 'availableFrom') {
+        const G = [['direct', 'Direct from maker'], ['agg', 'Aggregators'], ['cloud', 'Cloud platforms'], ['self', 'Self-host (open weights download)']];
+        const c = {}; models.forEach(m => (m.availableFrom || []).forEach(v => c[v] = (c[v] || 0) + 1));
+        d.tree = G.map(([g, label]) => ({ key: 'avail.' + g, label,
+          children: Object.keys(c).filter(k => k.startsWith(g + ':')).sort((a, b) => c[b] - c[a] || a.localeCompare(b)).map(k => ({ key: k, label: k.slice(g.length + 1) })) }))
+          .filter(n => n.children.length);
+      }
     }
     return DIMS;
   }

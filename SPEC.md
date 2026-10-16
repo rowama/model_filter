@@ -117,6 +117,27 @@ Tags are **heuristic**: regex keywords over the name, description and HF tags, p
 
 - Intelligence now also averages the AA benchmark percentiles.
 
+## 1c. "Available from" facet (2026-10-15)
+- **What it is:** a multi-valued categorical facet that applies to All types. The All/Any frame works for siblings. Labels show only the leaf name, e.g. "Available from: Aggregators" or "Available from: OpenRouter". The Maker facet is unchanged.
+- **Level 1** (my choice: 4 groups, including **Self-host**):
+  - Direct from maker
+  - Aggregators (OpenRouter and inference hosts such as Together, Fireworks, Groq, DeepInfra, Novita, plus HF Inference Providers)
+  - Cloud platforms (AWS Bedrock, Google Vertex AI, Azure, Claude Platform on AWS)
+  - Self-host (open weights download), whose only provider is "Hugging Face (download)"
+- **Level 2:** the individual providers.
+- **Derivation** (`enrich.availability`, with sources in `prov.availableFrom`):
+  - Every OpenRouter-listed model gets "OpenRouter".
+  - Each OpenRouter per-provider endpoint (`raw/ep/`) adds its provider:
+    - OpenRouter's "Amazon Bedrock", "Google" (Vertex), "Azure" and "Claude Platform on AWS" count as Cloud.
+    - A provider that is the model maker's own API counts as Direct (explicit maker→provider map, e.g. google→Google AI Studio, qwen→Alibaba, x-ai→xAI).
+    - Everything else counts as an Aggregator.
+  - HF models with open weights get "Hugging Face (download)".
+  - Live HF inference providers (`raw/hf_providers.json`, from `expand[]=inferenceProviderMapping`, fetched 2026-10-15) add "Hugging Face Inference Providers" plus each provider (zai-org on Z.AI models counts as Direct).
+  - Manual entries get Direct only where a vendor pricing page was already fetched (OpenAI, Google AI Studio for Gemini Embedding 2, ElevenLabs, Deepgram).
+  - No other vendor-docs claims are made. Models with no evidence stay unrated: 5 manual entries (Gemini Embedding 001, Imagen 4, Cohere Embed v4, ElevenLabs Multilingual v2, Midjourney).
+- **Coverage** (models per group, of 703): Direct 254, Aggregators 455, Cloud 101, Self-host 480.
+- **Rebuild without the HF inference-provider file:** if `raw/hf_providers.json` is absent, the HF inference-provider values are skipped, and the facet does not break.
+
 ## 2. Architecture
 - `js/dims.js`: dimension definitions and taxonomy trees.
 - `js/engine.js`: data access layer. `engine.query(selections) -> { rows, total, groups:[{id, dim, level, multi, options:[{key, label, count, checked}], frame}], columns, selections }`.
@@ -142,7 +163,7 @@ Two panels:
    - Zero-count boxes are **hidden** (the engine omits them from `options`). Exception: a CHECKED box stays visible even at zero count so it can be unchecked.
    - ~~Scroll anchoring of the clicked box in the flat list~~ *(superseded; refinement levels now grow downward inside the popup)*.
    - Every dimension has an "unrated" box at level 1.
-3. **Order:** weights, license, input price, output price, intelligence, context, jobs, aptitude scores, then maker, params, max output, speed, release, tool calling, JSON, reasoning, runs locally, input modalities, languages, embedding dim. This is the facet order. ~~Refinement levels are appended at the bottom of the panel~~ *(superseded: each facet's levels stack inside its popup)*.
+3. **Order:** weights, license, input price, output price, intelligence, context, jobs, aptitude scores, then maker, available from, params, max output, speed, release, tool calling, JSON, reasoning, runs locally, input modalities, languages, embedding dim. This is the facet order. ~~Refinement levels are appended at the bottom of the panel~~ *(superseded: each facet's levels stack inside its popup)*.
 4. **Refinement chains:** each dimension has levels.
    - Checked boxes within a level are OR'd.
    - Checking at level k reveals ONE combined level k+1, generated from the UNION of level k's checked boxes.
@@ -203,10 +224,10 @@ Two panels:
   6. It always stays inside the viewport, including after Provenance expands. Re-rendering the table closes it.
 
 ## 6. Tests
-- `node tests/engine.test.js`: 15 query-logic tests covering OR within a level, AND across dims, counts, governing level, union child generation (numeric and categorical), uncheck retention, All/Any frame, type hide/restore, shared dims, zero-count hiding (checked zero kept), sorting, the min-6 rule, and unrated counting.
+- `node tests/engine.test.js`: 18 query-logic tests (including 3 for Available from: taxonomy and labels, the All/Any frame and level-2 filtering, provenance and Maker unchanged) covering OR within a level, AND across dims, counts, governing level, union child generation (numeric and categorical), uncheck retention, All/Any frame, type hide/restore, shared dims, zero-count hiding (checked zero kept), sorting, the min-6 rule, and unrated counting.
 - `node tests/enrich.test.js`: anecdotal tags (counted as tagged, `anecdotal` count, row flag), the estimated-params flag and its formatting, and catalog checks (provenance, no community evidence feeding scores, URLs on evidence).
 - `NODE_PATH=<playwright node_modules> node tests/popover.test.js`: popover intent. Checks that the popup stays anchored, a quick or slow move across other rows into the popup does not switch rows, clicking Provenance works inside the viewport, switching happens only after the dwell time, a brief pass over a row is ignored, Esc closes it, and it hides after the grace period. Also checks the facet popup: crossing other facets into the popup keeps the target, switching happens after the dwell, and Esc closes it.
-- `NODE_PATH=<playwright node_modules> node tests/ui.test.js`: facet popups. Covers facets listed by name, hover opening the popup, a check revealing the child level in the popup, live results, checked items listed under the facet after leaving, hovering a checked item reopening the popup at depth, unchecking in the panel, type-switch hide/restore, All/Any in the popup, the anecdotal \*, sorting and the row popover. Writes `tests/screenshot.png`.
+- `NODE_PATH=<playwright node_modules> node tests/ui.test.js`: facet popups. Covers facets listed by name, hover opening the popup, a check revealing the child level in the popup, live results, checked items listed under the facet after leaving, hovering a checked item reopening the popup at depth, unchecking in the panel, type-switch hide/restore, All/Any in the popup, the anecdotal \*, the Available from facet (popup levels, frame, panel items), sorting and the row popover. Writes `tests/screenshot.png`.
 
 ## 7. Known gaps
 - Only 10 image-gen scores.

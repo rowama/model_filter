@@ -14,7 +14,7 @@
     for (const d of DIMS) if (d.kind === 'categorical') {
       d.anc = {}; d.lab = {}; d.kids = {};
       const walk = (nodes, path, labs) => nodes.forEach(n => {
-        d.anc[n.key] = path; d.lab[n.key] = [...labs, n.label].join(' › ');
+        d.anc[n.key] = path; d.lab[n.key] = d.leafLabels ? n.label : [...labs, n.label].join(' › ');
         d.kids[n.key] = (n.children || []).map(c => c.key);
         if (n.children) walk(n.children, [...path, n.key], [...labs, n.label]);
       });

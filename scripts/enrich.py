@@ -194,3 +194,53 @@ def community(models, R, targets):
             stats['curated_tags'] += 1
     stats['curated_models'] = sum(1 for r in models.values() if r['jobsAnecdotal'])
     return stats
+
+# ---------- 'Available from' (multi-valued): keys "<group>:<provider>" ----------
+CLOUD = {'Amazon Bedrock': 'AWS Bedrock', 'Google': 'Google Vertex AI', 'Azure': 'Azure', 'Claude Platform on AWS': 'Claude Platform on AWS'}
+MAKER_DIRECT = {  # catalog maker slug -> OpenRouter provider name that IS the maker's own API
+  'openai': 'OpenAI', 'anthropic': 'Anthropic', 'google': 'Google AI Studio', 'mistralai': 'Mistral', 'qwen': 'Alibaba', 'x-ai': 'xAI',
+  'z-ai': 'Z.AI', 'minimax': 'Minimax', 'deepseek': 'DeepSeek', 'cohere': 'Cohere', 'moonshotai': 'Moonshot AI', 'xiaomi': 'Xiaomi',
+  'tencent': 'Tencent', 'baidu': 'Baidu', 'bytedance-seed': 'Seed', 'meta': 'Meta', 'meta-llama': 'Meta', 'nvidia': 'Nvidia',
+  'perplexity': 'Perplexity', 'upstage': 'Upstage', 'sakana': 'Sakana AI', 'poolside': 'Poolside', 'liquid': 'Liquid', 'inception': 'Inception',
+  'stepfun': 'StepFun', 'rekaai': 'Reka', 'relace': 'Relace', 'morph': 'Morph', 'aion-labs': 'AionLabs', 'nex-agi': 'Nex AGI',
+  'perceptron': 'Perceptron', 'scaledown': 'ScaleDown', 'thinkingmachines': 'Thinking Machines', 'unbiased': 'Unbiased', 'arcee-ai': 'Arcee AI',
+  'inference-net': 'InferenceNet'}
+HF_PROV = {'featherless-ai': 'Featherless', 'deepinfra': 'DeepInfra', 'hf-inference': 'HF Inference API', 'novita': 'Novita', 'together': 'Together',
+           'nscale': 'Nscale', 'fal-ai': 'fal', 'zai-org': 'Z.AI', 'scaleway': 'Scaleway', 'wavespeed': 'WaveSpeed', 'ovhcloud': 'OVHcloud',
+           'fireworks-ai': 'Fireworks', 'baseten': 'BaseTen', 'replicate': 'Replicate', 'groq': 'Groq', 'cerebras': 'Cerebras'}
+HF_DIRECT = {'zai-org': {'z-ai', 'zai-org'}}
+MANUAL_AVAIL = {  # vendor pricing pages fetched earlier (see comments/prov of those entries)
+  'man:openai/': ('direct:OpenAI', 'platform.openai.com/docs/pricing'), 'man:google/gemini-embedding-2': ('direct:Google AI Studio', 'ai.google.dev/gemini-api/docs/pricing'),
+  'man:elevenlabs/v': ('direct:ElevenLabs', 'elevenlabs.io/pricing/api'), 'man:deepgram/': ('direct:Deepgram', 'deepgram.com/pricing')}
+
+def availability(models, R):
+    hfp = {}
+    p = f'{R}/hf_providers.json'
+    if os.path.exists(p): hfp = json.load(open(p))['models']
+    stats = collections.Counter()
+    for k, r in models.items():
+        av, src = set(), set()
+        maker = (r.get('maker') or '').lower()
+        if r.get('orid'):
+            av.add('agg:OpenRouter'); src.add('OpenRouter models API')
+            ep = json.load(open(f"{R}/ep/{r['orid'].replace('/', '_').replace(':', '_')}.json")) if os.path.exists(f"{R}/ep/{r['orid'].replace('/', '_').replace(':', '_')}.json") else {}
+            for e in ((ep.get('data') or {}).get('endpoints') or []):
+                pn = e.get('provider_name')
+                if not pn: continue
+                if pn in CLOUD: av.add('cloud:' + CLOUD[pn])
+                elif MAKER_DIRECT.get(maker) == pn or (maker == 'meta-llama' and pn == 'Meta'): av.add('direct:' + pn)
+                else: av.add('agg:' + pn)
+                src.add('OpenRouter per-provider endpoints')
+        if r.get('hf'):
+            if r.get('weights') == 'Open': av.add('self:Hugging Face (download)'); src.add('Hugging Face Hub (open weights)')
+            live = hfp.get(r['hf'], [])
+            if live: av.add('agg:Hugging Face Inference Providers'); src.add('HF inferenceProviderMapping (live)')
+            for pv in live:
+                name = HF_PROV.get(pv, pv)
+                av.add(('direct:' if maker in HF_DIRECT.get(pv, set()) else 'agg:') + name)
+        for pre, (key, s) in MANUAL_AVAIL.items():
+            if k.startswith('man:' ) and k.startswith(pre): av.add(key); src.add(s)
+        r['availableFrom'] = sorted(av) or None
+        if av: r['prov']['availableFrom'] = '; '.join(sorted(src))
+        for a in av: stats[a.split(':')[0]] += 1
+    return stats

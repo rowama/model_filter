@@ -68,6 +68,17 @@ const { chromium } = require('playwright'); const path = require('path'); const 
   assert((await popBox(/^Job: Coding › Refactoring\(/).textContent()).includes('*'));
   assert(await p.locator('#table tbody .anec').count() > 0); step('anecdotal * in popup count + row');
   await leave();
+  // Available from facet in popup (All types): level 1 -> level 2 providers, All/Any frame
+  await p.goto('file://' + path.join(__dirname, '../index.html'));
+  await p.hover('.fname[data-facet=availableFrom]'); await p.waitForTimeout(80);
+  const ab = await fpop.boundingBox(); await p.mouse.move(ab.x + 30, ab.y + 40, { steps: 5 });
+  const before = await rows();
+  await popBox(/^Available from: Aggregators\(/).locator('input').check();
+  assert(await popBox(/^Available from: OpenRouter\(/).count(), 'level-2 provider in popup'); assert(await rows() < before);
+  await popBox(/^Available from: Cloud platforms\(/).locator('input').check(); await p.waitForTimeout(250);
+  assert.strictEqual(await p.locator('#fpop .frame').count(), 1);
+  await popBox(/^Available from: OpenRouter\(/).locator('input').check();
+  await leave(); assert(await panelSel(/^Available from: OpenRouter\(/).count()); step('Available from facet: popup levels, frame, panel items');
   // sorting
   await p.click('th[data-col=priceIn]'); assert((await p.locator('th[data-col=priceIn]').textContent()).includes('▲'));
   await p.click('th[data-col=priceIn]'); assert((await p.locator('th[data-col=priceIn]').textContent()).includes('▼')); step('sort arrows');
@@ -75,4 +86,4 @@ const { chromium } = require('playwright'); const path = require('path'); const 
   await p.screenshot({ path: path.join(__dirname, 'screenshot.png') });
   assert.deepStrictEqual(errs, []); step('no console errors');
   console.log(ok.map(s => 'PASS ' + s).join('\n')); await b.close();
-})().catch(e => { console.error('FAIL', e.message); process.exit(1); });
+})().catch(e => { console.error('FAIL', e.message, e.stack.split('\n').find(l => l.includes('ui.test'))); process.exit(1); });
