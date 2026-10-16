@@ -1,6 +1,6 @@
-# Decisions log: how Model Filter came to be
+# Decisions log: how Quick Filter came to be
 
-A chronological summary of the conversation between Rob and the assistant that produced Model Filter (GitHub rowama/model_filter, HEAD e648ae8). Each entry records the question raised and the decision made. See SPEC.md for the resulting behaviour and PROMPT.md for the rebuild brief.
+A chronological summary of the conversation between Rob and the assistant that produced Quick Filter (GitHub rowama/model_filter, HEAD e648ae8). Each entry records the question raised and the decision made. See SPEC.md for the resulting behaviour and PROMPT.md for the rebuild brief.
 
 ## 1. Initial vision
 
