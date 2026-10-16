@@ -747,19 +747,54 @@ window.MF_EMBED = {"config": "models.yaml", "files": {"models.yaml": "# Model Fi
     if (root.MF_APP && root.MF_APP.destroy) root.MF_APP.destroy(); // replacing a running config: full reset
     const engine = MF_ENGINE.createLocalEngine(spec);
     const dimsById = spec.facetById, T = spec.types;
-    let state = { type: T ? T.all.id : 'all', dims: {}, sort: spec.table.defaultSort };
+    const fresh = () => ({ type: T ? T.all.id : 'all', dims: {}, sort: spec.table.defaultSort });
+    let state = fresh();
     let res;
+    // ---- per-config persisted filter state (localStorage, in-memory fallback) ----
+    // Identity = config title + dataset path: survives YAML edits that don't change what is being filtered.
+    const stateKey = 'mf-state:' + spec.title + '|' + spec.cfg.dataset.path;
+    let restoreNote = '';
+    {
+      const saved = MF_STORE.get(stateKey);
+      if (saved && typeof saved === 'object') {
+        let dropped = 0; const s = { type: state.type, dims: {}, sort: state.sort };
+        const typeIds = T ? [T.all.id, ...T.ids] : ['all'];
+        if (typeIds.includes(saved.type)) s.type = saved.type; else if (saved.type != null) dropped++;
+        const countKeys = dims => Object.values(dims || {}).reduce((n, d) => n + ((d && d.levels) || []).reduce((m, l) => m + ((l && l.checked) || []).length, 0), 0);
+        for (const [id, d] of Object.entries(saved.dims || {})) {
+          if (!dimsById[id] || !d || !Array.isArray(d.levels)) { dropped += countKeys({ x: d }); continue; }
+          s.dims[id] = { levels: d.levels.map(l => ({ checked: Array.isArray(l && l.checked) ? l.checked.map(String) : [], mode: l && l.mode === 'any' ? 'any' : 'all' })) };
+        }
+        // normalize every facet under every type so stale keys anywhere (incl. hidden-by-type) are dropped now
+        // each facet is normalized under the restored type if visible there, else under the first type that shows it
+        // (numeric child ranges depend on the type's universe, so other types must not prune them)
+        const before = countKeys(s.dims), out = {};
+        for (const t of [s.type, ...typeIds.filter(x => x !== s.type)]) {
+          const r = engine.query({ type: t, dims: s.dims, sort: null }), vis = new Set(r.groups.map(g => g.dim));
+          for (const id of Object.keys(s.dims)) if (!(id in out) && vis.has(id)) out[id] = r.selections.dims[id];
+        }
+        s.dims = out; dropped += before - countKeys(s.dims);
+        if (saved.sort === null) s.sort = null;
+        else if (saved.sort && saved.sort.col) {
+          const cols = new Set([...spec.facets.map(d => d.id), ...spec.table.columns.filter(c => c.field).map(c => c.field)]);
+          if (cols.has(saved.sort.col)) s.sort = { col: saved.sort.col, dir: saved.sort.dir === 'desc' ? 'desc' : 'asc' }; else dropped++;
+        }
+        state = s;
+        if (dropped) restoreNote = `Restored saved filters; dropped ${dropped} selection${dropped > 1 ? 's' : ''} no longer available in this data/config.`;
+      }
+    }
     const $ = s => document.querySelector(s);
     const esc = MF_RUNTIME.esc;
     document.title = spec.title; $('#title').textContent = spec.title;
     $('#meta').textContent = spec.headerText();
-    $('#warnings').innerHTML = (spec.warnings || []).map(w => `<div>⚠ ${esc(w)}<\/div>`).join(''); $('#warnings').hidden = !(spec.warnings || []).length;
+    const notes = [...(spec.warnings || []).map(w => '⚠ ' + w), ...(restoreNote ? ['ℹ ' + restoreNote] : [])];
+    $('#warnings').innerHTML = notes.map(w => `<div>${esc(w)}<\/div>`).join(''); $('#warnings').hidden = !notes.length;
 
     // exclusive type selector
     const types = $('#types');
     if (T) {
       types.setAttribute('aria-label', T.label); types.hidden = false;
-      types.innerHTML = [T.all, ...T.options].map(t => `<label><input type="radio" name="type" value="${esc(t.id)}" ${t.id === T.all.id ? 'checked' : ''}> ${esc(t.label)}<\/label>`).join('');
+      types.innerHTML = [T.all, ...T.options].map(t => `<label><input type="radio" name="type" value="${esc(t.id)}" ${t.id === state.type ? 'checked' : ''}> ${esc(t.label)}<\/label>`).join('');
       types.onchange = e => { state.type = e.target.value; update(); };
     } else { types.hidden = true; types.innerHTML = ''; }
 
@@ -817,6 +852,7 @@ window.MF_EMBED = {"config": "models.yaml", "files": {"models.yaml": "# Model Fi
 
     function update(opt = {}) {
       res = engine.query(state); state = res.selections;
+      MF_STORE.set(stateKey, { type: state.type, dims: state.dims, sort: state.sort }); // save on every change
       const openDim = facetPop.isOpen() ? facetPop.key() : null;
       if (openDim && !res.groups.some(g => g.dim === openDim)) facetPop.close();
       if (!facetPop.isOpen() || opt.fromPanel) renderPanel();  // checked items land in the panel when the popup closes
@@ -855,9 +891,23 @@ window.MF_EMBED = {"config": "models.yaml", "files": {"models.yaml": "# Model Fi
       ['#facets', '#fpop', '#pop', '#table thead', '#table tbody', '#types'].forEach(s => { $(s).innerHTML = ''; });
       $('#resultCount').textContent = ''; root.MF_APP = null;
     }
-    root.MF_APP = { getState: () => state, engine, spec, rows: spec.rows, facetPop, rowPop, ready: true, destroy };
+    function clear() { // 'Clear filters' (this config only): defaults for type, selections, sort
+      MF_STORE.del(stateKey); facetPop.close(); state = fresh();
+      if (T) types.querySelectorAll('input').forEach(i => { i.checked = i.value === state.type; });
+      update();
+    }
+    root.MF_APP = { getState: () => state, clear, stateKey, engine, spec, rows: spec.rows, facetPop, rowPop, ready: true, destroy };
     return root.MF_APP;
   }
+  // tiny storage wrapper: localStorage when usable, else in-memory (same API)
+  const mem = new Map(); let ls = null;
+  try { const k = '__mf_probe'; localStorage.setItem(k, '1'); localStorage.removeItem(k); ls = localStorage; } catch (e) { ls = null; }
+  root.MF_STORE = {
+    persistent: !!ls,
+    get: k => { try { const v = ls ? ls.getItem(k) : mem.get(k); return v == null ? null : JSON.parse(v); } catch (e) { return null; } },
+    set: (k, v) => { const s = JSON.stringify(v); try { ls ? ls.setItem(k, s) : mem.set(k, s); } catch (e) { mem.set(k, s); } },
+    del: k => { try { ls && ls.removeItem(k); } catch (e) { } mem.delete(k); },
+  };
   root.MF_UI = { mount };
 })(window);
 
@@ -1006,7 +1056,7 @@ window.MF_EMBED = {"config": "models.yaml", "files": {"models.yaml": "# Model Fi
     const rs = recent();
     const item = (act, label, extra = '') => `<li role="none"><button type="button" role="menuitem" data-act="${act}" ${extra}>${label}<\/button><\/li>`;
     menu.innerHTML = item('load', 'Load YAML…') + (http ? item('path', 'Open by path…') : '') +
-      item('reload', 'Reload current', current ? '' : 'disabled') + (E ? item('default', 'Load default (embedded)') : '') +
+      item('reload', 'Reload current', current ? '' : 'disabled') + item('clear', 'Clear filters', running() ? '' : 'disabled') + (E ? item('default', 'Load default (embedded)') : '') +
       `<li role="separator" class="sep">Recent<\/li>` +
       (rs.length ? rs.map((r, i) => item('recent', `${esc(r.title || r.path)} <span class="rp">${esc(r.kind === 'path' ? r.path : r.path + (r.handleId && fsa ? ' (file access)' : ' (re-pick)'))}<\/span>`, `data-i="${i}"`)).join('') : '<li role="none" class="none">none yet<\/li>');
   }
@@ -1029,6 +1079,7 @@ window.MF_EMBED = {"config": "models.yaml", "files": {"models.yaml": "# Model Fi
     if (act === 'load') { resetPick(); openLoader(); }
     else if (act === 'path') { resetPick(); openLoader(); $('#path-input').value = current && current.kind === 'path' ? current.path : ''; $('#path-input').focus(); }
     else if (act === 'reload') reloadCurrent();
+    else if (act === 'clear') window.MF_APP && MF_APP.clear();
     else if (act === 'default') loadEmbed();
     else if (act === 'recent') openRecent(recent()[+b.dataset.i]);
   };

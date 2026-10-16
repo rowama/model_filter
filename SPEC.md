@@ -244,6 +244,11 @@ Two panels:
   - **Failed loads:** loading and validating finish before the swap, so a failed load shows errors and keeps the current config.
   - **Keyboard and closing:** the menu closes on Esc or an outside click, and is keyboard accessible (arrow keys, Home/End, focus returns to ☰).
   - The embedded default is still the first config loaded in the single file. Covered by `tests/menu.test.js`. The File System Access handle route can't run in headless tests; that path is untested.
+- **Per-config saved filters (2026-10-15):** the type, checked boxes at all levels, All/Any modes, selections hidden by the type, and sort are saved on every change. The key is `mf-state:<title>|<dataset.path>`, chosen over a YAML hash so config edits keep filters. Storage is `localStorage` with an in-memory fallback (`MF_STORE`). State is restored on every load of that config (initial, menu, Recent, Reload current, page reload).
+  - **Stale selections:** they are dropped safely, with a small non-blocking ℹ note giving the count.
+  - **Clear filters:** this menu item resets the current config only.
+  - **Known behaviour:** switching the type re-derives numeric child ranges for that type's universe, an existing engine rule, so a numeric child chosen under one type can be pruned after switching to another type and back.
+  - Covered by `tests/persist.test.js`.
 
 ## 6. Tests
 - `node tests/engine.test.js`: 19 query-logic tests (including 1 for Find it here links, verified and with provenance; including 3 for Available from: taxonomy and labels, the All/Any frame and level-2 filtering, provenance and Maker unchanged) covering OR within a level, AND across dims, counts, governing level, union child generation (numeric and categorical), uncheck retention, All/Any frame, type hide/restore, shared dims, zero-count hiding (checked zero kept), sorting, the min-6 rule, and unrated counting.

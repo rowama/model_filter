@@ -23,7 +23,14 @@ The UI in `js/` is a generic engine. **Everything** about the data comes from on
   - Path entries reload by path over http.
   - Entries opened with file access keep their handles in IndexedDB. They reopen after the browser's permission prompt.
   - Other picked-file entries are re-pick hints: the loader opens and tells you which file to choose.
-- **What gets reset:** a new config replaces the running one without a page reload. Selections, type, sort, popups and highlight are all reset, and its own default sort applies.
+- **What gets reset:** a new config replaces the running one without a page reload. Popups and highlight are always reset. Filters come back from that config's saved state (below), or start from its defaults.
+- **Clear filters** resets the current config's type, selections and sort to its defaults and deletes its saved state. Other configs keep theirs.
+
+### Saved filter state (per config)
+Each config's filter state is saved on every change and restored whenever that config loads: the initial load, Load YAML…, Open by path…, Recent, Reload current and page reloads. It is stored in `localStorage` under `mf-state:<title>|<dataset.path>`. If `localStorage` is unavailable (private mode, blocked), an in-memory store is used, which survives config switches but not reloads.
+- **Saved:** the type radio, checked boxes at every level, All/Any choices, selections hidden by the current type, and the sort column and direction.
+- **Identity choice:** title + dataset path rather than a hash of the YAML. Editing labels, ranges or popups keeps your filters, and anything that no longer fits is dropped. Two configs with the same title and dataset share state; give them different titles to separate them.
+- **Restoring:** each facet is normalized under the saved type, or under the first type that shows it. Unknown facets, keys and ranges no longer offered, children whose parent is gone, an unknown type and an unknown sort column are all dropped. A small note (ℹ in the yellow bar) says how many were dropped. Unreadable saved state is ignored.
 - **Failed loads:** the new config is fully loaded and validated first. If that fails (YAML or schema errors, a missing file, HTTP 404), the errors appear in the error box and the current config stays loaded.
 - **Closing and keyboard:** the menu closes on Esc (focus returns to ☰) or a click outside. It is keyboard accessible: Enter/Space/ArrowDown open it, and ArrowUp/ArrowDown/Home/End move between items. Esc also closes the loader dialog while a config is running.
 

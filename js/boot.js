@@ -141,7 +141,7 @@
     const rs = recent();
     const item = (act, label, extra = '') => `<li role="none"><button type="button" role="menuitem" data-act="${act}" ${extra}>${label}</button></li>`;
     menu.innerHTML = item('load', 'Load YAML…') + (http ? item('path', 'Open by path…') : '') +
-      item('reload', 'Reload current', current ? '' : 'disabled') + (E ? item('default', 'Load default (embedded)') : '') +
+      item('reload', 'Reload current', current ? '' : 'disabled') + item('clear', 'Clear filters', running() ? '' : 'disabled') + (E ? item('default', 'Load default (embedded)') : '') +
       `<li role="separator" class="sep">Recent</li>` +
       (rs.length ? rs.map((r, i) => item('recent', `${esc(r.title || r.path)} <span class="rp">${esc(r.kind === 'path' ? r.path : r.path + (r.handleId && fsa ? ' (file access)' : ' (re-pick)'))}</span>`, `data-i="${i}"`)).join('') : '<li role="none" class="none">none yet</li>');
   }
@@ -164,6 +164,7 @@
     if (act === 'load') { resetPick(); openLoader(); }
     else if (act === 'path') { resetPick(); openLoader(); $('#path-input').value = current && current.kind === 'path' ? current.path : ''; $('#path-input').focus(); }
     else if (act === 'reload') reloadCurrent();
+    else if (act === 'clear') window.MF_APP && MF_APP.clear();
     else if (act === 'default') loadEmbed();
     else if (act === 'recent') openRecent(recent()[+b.dataset.i]);
   };

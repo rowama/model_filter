@@ -17,5 +17,10 @@ function serve() {
   });
 }
 // open the app and wait until it has rendered
-async function openApp(p, url) { await p.goto(url); await p.waitForFunction(() => window.MF_APP && window.MF_APP.ready, null, { timeout: 15000 }); }
+// opts.keep: keep persisted per-config filter state (default: start from a clean state, like the pre-persistence tests expect)
+async function openApp(p, url, opts = {}) {
+  await p.goto(url);
+  if (!opts.keep) { await p.evaluate(() => { try { Object.keys(localStorage).filter(k => k.startsWith('mf-state:')).forEach(k => localStorage.removeItem(k)); } catch (e) { } }); await p.reload(); }
+  await p.waitForFunction(() => window.MF_APP && window.MF_APP.ready, null, { timeout: 15000 });
+}
 module.exports = { ROOT, read, loadSpec, loadEngine, serve, openApp };

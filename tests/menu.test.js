@@ -15,7 +15,7 @@ const { chromium } = require('playwright'); const path = require('path'); const 
   await p.check('input[name=type][value=text]'); await p.hover('.fname[data-facet=context]'); await p.waitForTimeout(80);
   const fb = await p.locator('#fpop').boundingBox(); await p.mouse.move(fb.x + 30, fb.y + 40, { steps: 4 });
   await p.locator('#fpop label.box').first().locator('input').check(); await p.mouse.move(700, 450, { steps: 3 }); await p.waitForTimeout(350);
-  await p.click('th[data-col=priceIn]'); assert(await rows() < nModels);
+  await p.click('th[data-col=priceIn]'); const dirty = await rows(); assert(dirty < nModels);
   // models -> books by path
   await openByPath('examples/books.yaml'); await ready('Book Finder (example data)');
   assert.strictEqual(await rows(), 30); assert.strictEqual(new URL(p.url()).searchParams.get('config'), 'examples/books.yaml');
@@ -37,11 +37,12 @@ const { chromium } = require('playwright'); const path = require('path'); const 
   await p.click('#menu-btn'); const rec = await p.locator('#menu [data-act=recent]').allTextContents();
   assert(rec[0].includes('Book Finder') && rec.some(t => t.includes('Model Filter')), rec.join('|')); await p.keyboard.press('Escape');
   const mi = rec.findIndex(t => t.includes('Model Filter')); await menuAct('recent', mi); await ready('Model Filter');
-  assert.strictEqual(await rows(), nModels); assert.strictEqual(await p.locator('#facets label.sel').count(), 0);
-  assert(!/[▲▼]/.test(await p.locator('#table thead').textContent()), 'sort reset'); assert.strictEqual(new URL(p.url()).searchParams.get('config'), 'models.yaml');
-  step('recent -> models: state, sort reset');
+  // per-config persistence: models comes back with its own saved filters + sort (tests/persist.test.js covers details)
+  assert.strictEqual(await rows(), dirty); assert(await p.locator('#facets label.sel').count() > 0);
+  assert((await p.locator('th[data-col=priceIn]').textContent()).includes('▲'), 'sort restored'); assert.strictEqual(new URL(p.url()).searchParams.get('config'), 'models.yaml');
+  step('recent -> models: no leftover popups, its saved filters + sort restored');
   // reload current
-  await menuAct('reload'); await p.waitForTimeout(300); assert.strictEqual(await rows(), nModels); step('reload current');
+  await menuAct('reload'); await p.waitForTimeout(300); assert.strictEqual(await rows(), dirty); step('reload current');
   // Load YAML… (picker) over http
   await menuAct('load'); assert(await p.locator('#loader.overlay').isVisible());
   await p.setInputFiles('#pick-files', ['books.yaml', 'books.csv', 'genres.yaml'].map(f => path.join(ROOT, 'examples', f))); await ready('Book Finder (example data)');
