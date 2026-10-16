@@ -153,7 +153,6 @@ Goal: **complete decoupling** of the frontend from the data and from the descrip
 - **Config sources:** the embedded default in `dist/model-filter.html` (models.yaml + data/catalog.json inlined); `?config=path.yaml` over http; the `<meta name="mf-default-config">` default (models.yaml) over http; and on `file://` a loader with multi-file picker, folder picker and drag-and-drop. If the YAML is picked alone, the loader asks for each missing file in turn.
 - **`models.yaml` reproduces the previous app exactly.** A playwright comparison against pushed HEAD 29e726e found the facet panel, every facet popup, the table header and body for all 7 types, and 101 row popups byte-identical. The one deliberate change is that the link note class was renamed from `kind` to the generic `note`.
 - **Example:** `examples/books.yaml` + `books.csv` (30 fictional books, clearly marked EXAMPLE DATA) + `genres.yaml` (a taxonomy loaded by path). It shows CSV typing, a type selector built from a list field, numeric/categorical/boolean facets, a generated tree, a multi-valued frame, default sort, a non-sortable column and a links section built from a URL string.
-- `data/catalog.js` is still written by `build_data.py` but is no longer loaded by the app.
 - `scripts/build_data.py`: regenerates the data from `raw/`.
 
 ## 3. Layout

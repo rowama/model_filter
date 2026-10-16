@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Builds data/catalog.js from raw/ snapshot files. No values are invented: missing -> null (shown 'unrated')."""
+"""Builds data/catalog.json from raw/ snapshot files. No values are invented: missing -> null (shown 'unrated')."""
 import json, glob, os, re, statistics, collections, datetime, sys
 sys.path.insert(0, os.path.dirname(__file__)); import enrich
 R = os.path.join(os.path.dirname(__file__), '..', 'raw'); OUT = os.path.join(os.path.dirname(__file__), '..', 'data')
@@ -345,7 +345,6 @@ for k, r in models.items():
 snap = '2026-10-14'
 meta = dict(snapshotDate=snap, enrichDate='2026-10-15', enrichStats=ENRICH_STATS, communityStats=COMM_STATS, availabilityStats=AVAIL_STATS, linkStats=LINK_STATS, arenaPublishDate=arena_date, counts=collections.Counter(t for o in out for t in o['types']), total=len(out),
             benchMatches=bench_src, skippedAliases=skipped_alias)
-open(f'{OUT}/catalog.js', 'w').write('(typeof window !== "undefined" ? window : globalThis).CATALOG = ' + json.dumps({'meta': meta, 'models': out}) + ';\n')
 json.dump({'meta': meta, 'models': out}, open(f'{OUT}/catalog.json', 'w'))
 print(json.dumps(meta, indent=1, default=str))
 for f in ['priceIn', 'intelligence', 'context', 'params', 'speed', 'license', 'languages', 'embedDim', 'aptCoding', 'aptReasoning', 'aptWriting', 'aptVision', 'aptImageGen']:
