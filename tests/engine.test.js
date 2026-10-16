@@ -1,7 +1,6 @@
 // node tests/engine.test.js  — exercises the query() interface only.
 const path = require('path'); const assert = require('assert');
-require(path.join(__dirname, '../data/catalog.js')); require(path.join(__dirname, '../js/dims.js')); require(path.join(__dirname, '../js/engine.js'));
-const E = MF_ENGINE.createLocalEngine(CATALOG); const { rparse } = MF_ENGINE;
+const H = require('./helpers'); const E = H.loadEngine('models.yaml'); const CATALOG = { models: E.spec.rows }; /* runs from models.yaml */ const { rparse } = MF_ENGINE;
 let pass = 0, fail = 0;
 const t = (name, fn) => { try { fn(); pass++; console.log('PASS', name); } catch (e) { fail++; console.log('FAIL', name, '\n   ', e.message); } };
 const q = s => E.query(s);

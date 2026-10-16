@@ -1,6 +1,7 @@
 // node tests/enrich.test.js — anecdotal job tags + estimated parameter flag (fixture + real catalog invariants)
 const path = require('path'); const assert = require('assert');
-require(path.join(__dirname, '../data/catalog.js')); require(path.join(__dirname, '../js/dims.js')); require(path.join(__dirname, '../js/engine.js'));
+const H = require('./helpers'); const CATALOG = { models: H.loadSpec('models.yaml').rows };
+const cfg = MF_RUNTIME.parseYaml(H.read('models.yaml'));
 let pass = 0, fail = 0;
 const t = (n, f) => { try { f(); pass++; console.log('PASS', n); } catch (e) { fail++; console.log('FAIL', n, '\n   ', e.message); } };
 const base = { maker: 'x', weights: 'Open', license: 'MIT', types: ['text'], languages: null, inputMods: ['text'], comments: '', sources: [] };
@@ -9,7 +10,8 @@ const fx = { meta: {}, models: [
   { ...base, id: 'B', name: 'B', jobs: ['coding.refactor'], jobsAnecdotalOnly: ['coding.refactor'], jobsAnecdotal: { 'coding.refactor': [{ source: 'GitHub', url: 'https://github.com/x/y/issues/1', quote: 'B worked great for refactoring' }] }, params: 8 },
   { ...base, id: 'C', name: 'C', jobs: ['chat.assistant'], jobsAnecdotalOnly: [], jobsAnecdotal: {}, weights: 'Closed', license: 'Proprietary', params: 200, paramsEstimated: true, prov: { params: 'example estimate source' } },
 ] };
-const E = MF_ENGINE.createLocalEngine(fx);
+const FS = MF_RUNTIME.compile(cfg, fx.models, fx.meta); const E = MF_ENGINE.createLocalEngine(FS);
+const paramsCell = m => FS.formatCell({ id: 'params', facet: true }, m, m.params, {}).replace(/<[^>]+>/g, '');
 t('anecdotal tag counts as tagged and is flagged in counts', () => {
   const r = E.query({ type: 'text', dims: { jobs: { levels: [{ checked: ['coding'] }] } } });
   assert.deepStrictEqual(r.rows.map(m => m.id).sort(), ['A', 'B']);
@@ -22,8 +24,8 @@ t('row matching only via anecdotal tag gets record asterisk flag', () => {
   assert.deepStrictEqual(E.query({ type: 'text', dims: {} }).rowFlags, {}, 'no flags without a job filter');
 });
 t('estimated params flag formats as ~NB (est.) and filters numerically', () => {
-  assert.strictEqual(MF_DIMS.fmtParams(fx.models[2]), '~200B (est.)');
-  assert.strictEqual(MF_DIMS.fmtParams(fx.models[0]), '7');
+  assert.strictEqual(paramsCell(fx.models[2]), '~200B (est.)');
+  assert.strictEqual(paramsCell(fx.models[0]), '7');
   const r = E.query({ type: 'text', dims: { params: { levels: [{ checked: ['80~inf'] }] } } });
   assert.deepStrictEqual(r.rows.map(m => m.id), ['C']);
 });

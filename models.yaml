@@ -1,0 +1,265 @@
+# Model Filter — app config. The UI (js/) is generic; everything model-specific lives here.
+# Reference: docs/CONFIG.md · Schema: docs/config.schema.json
+version: 1
+title: Model Filter
+
+dataset:
+  path: data/catalog.json      # relative to this file
+  format: json
+  records: models              # dotted path to the record array
+  meta: meta                   # dotted path to metadata (used by header.meta)
+  id: id
+
+header:
+  meta: "Snapshot {snapshotDate} (enriched {enrichDate|default:—}) · {total} models · LMArena published {arenaPublishDate}"
+
+counts:
+  show: true
+  option: "({count}{anecdotal_part})"
+  anecdotal_part: " · {anecdotal}{marker}"
+  results: "{n} of {total} models match"
+
+labels:
+  option: "{facet}: {value}"
+  unrated: unrated
+  range: "{lo}–{hi}{unit}"
+  range_open: "{lo}+{unit}"
+  path_separator: " › "
+
+types:
+  field: types
+  label: Model type
+  all: {id: all, label: All types}
+  options:
+    - {id: text, label: Text generation}
+    - {id: embed, label: Embeddings}
+    - {id: vision, label: Vision}
+    - {id: t2i, label: Text-to-image}
+    - {id: stt, label: Speech-to-text}
+    - {id: tts, label: Text-to-speech}
+
+popups:
+  facet: {dwell_ms: 300, grace_ms: 200}
+  row: {dwell_ms: 300, grace_ms: 200, highlight: true}
+
+taxonomies:
+  jobs:
+    - key: coding
+      label: Coding
+      children:
+        - {key: coding.create, label: Creating code}
+        - {key: coding.refactor, label: Refactoring}
+        - {key: coding.review, label: Reviewing}
+        - {key: coding.debug, label: Debugging}
+        - {key: coding.test, label: Testing}
+        - {key: coding.web, label: Web/frontend}
+    - key: writing
+      label: Writing
+      children:
+        - {key: writing.creative, label: Creative/fiction}
+        - {key: writing.roleplay, label: Roleplay/characters}
+        - {key: writing.business, label: Business/marketing}
+        - {key: writing.summarize, label: Summarization}
+    - key: reasoning
+      label: Reasoning & math
+      children:
+        - {key: reasoning.math, label: Math}
+        - {key: reasoning.logic, label: Logic/step-by-step}
+        - {key: reasoning.science, label: Science/research}
+    - key: extraction
+      label: Data extraction
+      children:
+        - {key: extraction.json, label: Structured JSON}
+        - {key: extraction.docs, label: Documents/OCR}
+        - {key: extraction.classify, label: Classification/tagging}
+    - key: agents
+      label: Agents & tool use
+      children:
+        - {key: agents.functions, label: Function calling}
+        - {key: agents.workflows, label: Multi-step agentic}
+        - {key: agents.computer, label: Computer/browser use}
+    - key: chat
+      label: Chat
+      children:
+        - {key: chat.assistant, label: General assistant}
+        - {key: chat.support, label: Customer support}
+    - key: translation
+      label: Translation
+      children:
+        - {key: translation.general, label: Multilingual translation}
+    - key: retrieval
+      label: Retrieval & search
+      children:
+        - {key: retrieval.search, label: Semantic search/RAG}
+        - {key: retrieval.rerank, label: Reranking}
+        - {key: retrieval.cluster, label: Clustering}
+    - key: vision
+      label: Vision understanding
+      children:
+        - {key: vision.describe, label: Image description}
+        - {key: vision.charts, label: Charts/diagrams}
+        - {key: vision.ocr, label: OCR}
+        - {key: vision.video, label: Video}
+    - key: imagegen
+      label: Image generation
+      children:
+        - {key: imagegen.photo, label: General/photoreal}
+        - {key: imagegen.edit, label: Editing/inpainting}
+    - key: speech
+      label: Speech
+      children:
+        - {key: speech.transcribe, label: Transcription}
+        - {key: speech.synthesis, label: Speech synthesis}
+        - {key: speech.clone, label: Voice cloning}
+  license:
+    - key: lic.permissive
+      label: Permissive
+      children: [{key: Apache-2.0}, {key: MIT}, {key: BSD}, {key: CC-BY}]
+    - key: lic.copyleft
+      label: Copyleft/share-alike
+      children: [{key: GPL, label: GPL family}, {key: CC-BY-SA}]
+    - key: lic.restricted
+      label: Open but restricted
+      children:
+        - {key: Llama community}
+        - {key: Gemma terms}
+        - {key: OpenRAIL}
+        - {key: CC-BY-NC, label: Non-commercial (CC-BY-NC)}
+        - {key: Other/custom}
+    - {key: Proprietary}
+
+# Facet order = list order. Facets without `types` apply to all types (and are the only ones shown under "All types").
+# Score facets share: ranges 0-25-50-75-100, column format fixed(1).
+facets:
+  - {id: weights, label: Weights, kind: categorical, field: weights, tree: [{key: Open}, {key: Closed}]}
+  - {id: license, label: License, kind: categorical, field: license, tree: {ref: license}}
+  - id: priceIn
+    label: Input price
+    kind: numeric
+    field: priceIn
+    format: {kind: money}
+    unit: /1M
+    ranges: [[0, 0.1], [0.1, 1], [1, 5], [5, null]]
+    split: {method: quantile, nice: true, min_count: 6, max_children: 4}
+    column: {label: In $/1M, format: {kind: precision, digits: 3, prefix: $}}
+  - id: priceOut
+    label: Output price
+    kind: numeric
+    field: priceOut
+    format: {kind: money}
+    unit: /1M
+    ranges: [[0, 0.5], [0.5, 2], [2, 10], [10, null]]
+    column: {label: Out $/1M, format: {kind: precision, digits: 3, prefix: $}}
+  - {id: intelligence, label: Intelligence, kind: numeric, field: intelligence, types: [text, vision], ranges: &q4 [[0, 25], [25, 50], [50, 75], [75, null]], column: {label: Intel., format: &f1 {kind: fixed, digits: 1}}}
+  - id: context
+    label: Context window
+    kind: numeric
+    field: context
+    types: [text, vision, embed]
+    format: {kind: si}
+    unit: " tokens"
+    ranges: [[0, 100000], [100000, 500000], [500000, 1000000], [1000000, null]]
+    column: {label: Context, format: {kind: si}}
+  - id: jobs
+    label: Job
+    kind: categorical
+    field: jobs
+    multi: true
+    tree: {ref: jobs}
+    anecdotal: {exclude_field: jobsAnecdotalOnly, marker: "*", row_flag_title: matches the Job filter only via anecdotal community reports}
+  - {id: aptCoding, label: Coding score, kind: numeric, field: aptCoding, types: [text, vision], ranges: *q4, column: {label: Coding, format: *f1}}
+  - {id: aptReasoning, label: Reasoning score, kind: numeric, field: aptReasoning, types: [text, vision], ranges: *q4, column: {label: Reason., format: *f1}}
+  - {id: aptWriting, label: Writing/chat score, kind: numeric, field: aptWriting, types: [text, vision], ranges: *q4, column: {label: Writing, format: *f1}}
+  - {id: aptInstruct, label: Instruction/extraction score, kind: numeric, field: aptInstruct, types: [text, vision], ranges: *q4, column: {label: Instr., format: *f1}}
+  - {id: aptAgents, label: Agentic score, kind: numeric, field: aptAgents, types: [text, vision], ranges: *q4, column: {label: Agents, format: *f1}}
+  - {id: aptVision, label: Vision score, kind: numeric, field: aptVision, types: [vision], ranges: *q4, column: {label: Vision, format: *f1}}
+  - {id: aaIndex, label: AA intelligence index, kind: numeric, field: aaIndex, types: [text, vision], ranges: [[0, 20], [20, 40], [40, 60], [60, null]], column: {label: AA idx}}
+  - {id: aptEmbedding, label: Embedding score (MTEB), kind: numeric, field: aptEmbedding, types: [embed], ranges: *q4, column: {label: MTEB, format: *f1}}
+  - {id: aptSTT, label: Transcription score (Open ASR), kind: numeric, field: aptSTT, types: [stt], ranges: *q4, column: {label: ASR, format: *f1}}
+  - {id: aptTTS, label: Speech quality score (TTS Arena), kind: numeric, field: aptTTS, types: [tts], ranges: *q4, column: {label: TTS, format: *f1}}
+  - {id: aptImageGen, label: Image-gen score, kind: numeric, field: aptImageGen, types: [t2i], ranges: *q4, column: {label: ImgGen, format: *f1}}
+  - {id: maker, label: Maker, kind: categorical, field: maker, tree: {generate: top_n, n: 15, other_label: Other}}
+  - id: availableFrom
+    label: Available from
+    kind: categorical
+    field: availableFrom
+    multi: true
+    value_labels: leaf          # 'Available from: OpenRouter' (not the full path)
+    tree:
+      generate: prefix_groups   # values look like 'agg:OpenRouter'
+      separator: ":"
+      key_prefix: avail.
+      groups:
+        - {prefix: direct, label: Direct from maker}
+        - {prefix: agg, label: Aggregators}
+        - {prefix: cloud, label: Cloud platforms}
+        - {prefix: self, label: Self-host (open weights download)}
+  - id: params
+    label: Parameters
+    kind: numeric
+    field: params
+    unit: B
+    ranges: [[0, 3], [3, 15], [15, 80], [80, null]]
+    column:
+      label: Params B
+      format: {kind: precision, digits: 4}
+      estimated: {flag_field: paramsEstimated, template: "~{value}B (est.)", title_field: prov.params}
+  - {id: maxOut, label: Max output, kind: numeric, field: maxOut, types: [text, vision], format: {kind: si}, unit: " tokens", ranges: [[0, 8192], [8192, 32768], [32768, 131072], [131072, null]], column: {label: Max out, format: {kind: si}}}
+  - {id: speed, label: Speed, kind: numeric, field: speed, types: [text, vision], unit: " tok/s", ranges: [[0, 50], [50, 100], [100, 200], [200, null]], column: {label: tok/s}}
+  - {id: latency, label: Latency (TTFT), kind: numeric, field: latency, types: [text, vision], unit: " s", ranges: [[0, 0.5], [0.5, 1], [1, 5], [5, null]], column: {label: TTFT s}}
+  - {id: priceAudioMin, label: Audio price, kind: numeric, field: priceAudioMin, types: [stt], format: {kind: plain, prefix: $}, unit: /min, ranges: [[0, 0.003], [0.003, 0.006], [0.006, null]], column: {label: $/min}}
+  - {id: priceChars, label: Character price, kind: numeric, field: priceChars, types: [tts], format: {kind: plain, prefix: $}, unit: /1M chars, ranges: [[0, 20], [20, 50], [50, null]], column: {label: $/1M ch}}
+  - id: release
+    label: Release
+    kind: numeric
+    field: release            # 'YYYY-MM-DD' string
+    parse: yearmonth          # -> fractional year for ranges
+    format: {kind: yearmonth}
+    ranges: [[0, 2024], [2024, 2025], [2025, 2026], [2026, null]]
+    split: {step: 1/12}       # boundaries on whole months
+    range_labels: {from_zero: "before {hi}", open: "{lo} or later", closed: "{lo} – {hi_step}"}
+    column: {label: Released, display_field: release}
+  - {id: tools, label: Tool calling, kind: boolean, field: tools, types: [text, vision]}
+  - {id: json, label: Structured JSON, kind: boolean, field: json, types: [text, vision]}
+  - {id: reasoning, label: Reasoning mode, kind: boolean, field: reasoning, types: [text, vision]}
+  - id: localGPU
+    label: Runs locally
+    kind: categorical
+    field: localGPU
+    tree:
+      - {key: "Yes (<=14B)", label: "Yes (≤14B params)"}
+      - {key: "High-end/quantized (14-40B)", label: "High-end GPU / quantized (14–40B)"}
+      - {key: "No (>40B)", label: "No (>40B)"}
+      - {key: "No (closed)", label: "No (closed weights)"}
+  - {id: inputMods, label: Input, kind: categorical, field: inputMods, multi: true, types: [text, vision], tree: [{key: text}, {key: image}, {key: audio}, {key: video}, {key: file}]}
+  - {id: languages, label: Language, kind: categorical, field: languages, multi: true, tree: {generate: top_n, n: 12, other_label: Other}}
+  - {id: embedDim, label: Embedding dim, kind: numeric, field: embedDim, types: [embed], ranges: [[0, 512], [512, 1024], [1024, 2048], [2048, null]], column: {label: Emb dim}}
+
+table:
+  columns:
+    - {field: name, label: Model, row_flag_marker: true}
+    - {field: maker, label: Maker}
+    - {facets: numeric}        # one column per visible numeric facet (facet.column: false to omit)
+    - {field: comments, label: Comments, class: c}
+  default_sort: null
+  unrated_last: true
+
+row_popup:
+  sections:
+    - {type: links, title: Find it here, field: links, url: url, text: label, note: kind, collapsible: true, count_in_title: true, class: find, empty: No verified provider pages}
+    - type: fields
+      rows:
+        - {label: Types, value: "{types|join:, }"}
+        - {label: Weights, value: "{weights}"}
+        - {label: License, value: "{license|default:unrated}"}
+        - {label: Jobs, value: "{jobs|tags:jobs|join:; |default:unrated}"}
+        - {label: Input, value: "{inputMods|join:, |default:unrated}"}
+        - {label: Languages, value: "{languages|limit:25|join:, |default:unrated}"}
+        - {label: Tools / JSON / Reasoning, value: "{tools|yesno} / {json|yesno} / {reasoning|yesno}"}
+        - {label: Runs locally, value: "{localGPU|default:unrated}"}
+        - {label: AA index, value: "{aaIndex|default:unrated}{aaIndexEstimated|if: (AA-estimated)}"}
+        - {label: Benchmarks, entries: {field: benchRaw, item: "{$key} {$value} (p{benchPct.$key})", join: ", ", empty: none}}
+        - {label: ID, value: "{orid,hf,id}"}
+        - {label: Sources, value: "{sources|join:, }"}
+    - {type: evidence, title: "* anecdotal community reports (not used in scores):", field: jobsAnecdotal, facet: jobs, link_text: source, url: url, quote: quote, quote_max: 140}
+    - {type: map, title: Provenance, field: prov, collapsible: true}

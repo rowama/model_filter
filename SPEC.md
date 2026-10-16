@@ -139,12 +139,21 @@ Tags are **heuristic**: regex keywords over the name, description and HF tags, p
 - **Rebuild without the HF inference-provider file:** if `raw/hf_providers.json` is absent, the HF inference-provider values are skipped, and the facet does not break.
 
 ## 2. Architecture
-- `js/dims.js`: dimension definitions and taxonomy trees.
+- **(Superseded 2026-10-15 by §2a: `js/dims.js` is gone.)** All dimension definitions, taxonomies and labels now live in `models.yaml`.
 - `js/engine.js`: data access layer. `engine.query(selections) -> { rows, total, groups:[{id, dim, level, multi, options:[{key, label, count, checked}], frame}], columns, selections }`.
   - `selections = { type, dims: { [dimId]: { levels: [{ checked: [keys], mode: 'all'|'any' }] } }, sort: { col, dir } }`.
   - The returned `selections` is normalized: invalid children are pruned, and dims hidden by the type are passed through untouched.
-- The first implementation (`createLocalEngine`) brute-force scans the embedded JSON (`data/catalog.js`). A DB backend can implement the same request/response shape without UI changes; make it async and await it in `update()`.
-- `js/app.js`: UI only.
+- The first implementation (`createLocalEngine(spec)`) brute-force scans the records loaded by the config runtime (`data/catalog.json` through `models.yaml`). A DB backend can implement the same request/response shape without UI changes; make it async and await it in `update()`.
+- `js/app.js`: UI only, and generic (`MF_UI.mount(spec)`).
+
+## 2a. Config-driven app (2026-10-15, agenda item 2)
+Goal: **complete decoupling** of the frontend from the data and from the description of the data.
+- One YAML file describes everything: title, dataset pointer (JSON/CSV, id field, CSV typing/list delimiter), the exclusive type selector (with an All option and per-facet applicability), facets (numeric ranges with quantile/nice/step split rules and min count, categorical trees inline/ref/path/generated, booleans, single vs multi-valued, units and formats, unrated handling, anecdotal marker), label templates, table columns and default sort (unrated last), row-popup sections (Find it here links, field rows, evidence, provenance), popup dwell/grace, the row highlight and the counts display. Full reference: `docs/CONFIG.md`. Schema: `docs/config.schema.json`, generated from `js/schema.js`.
+- **Generic runtime** (`js/runtime.js`): parses YAML with the vendored js-yaml 4.3.2 (`js/vendor/js-yaml.min.js`, MIT, no CDN). It validates against the schema plus semantic checks and shows clear path-qualified errors in the UI. It then loads the dataset and taxonomy files, compiles a spec, and passes it to `js/engine.js` (generic) and `js/app.js` (generic). `js/boot.js` chooses the config source. `tests/config.test.js` asserts that `js/` contains no dataset-specific names.
+- **Config sources:** the embedded default in `dist/model-filter.html` (models.yaml + data/catalog.json inlined); `?config=path.yaml` over http; the `<meta name="mf-default-config">` default (models.yaml) over http; and on `file://` a loader with multi-file picker, folder picker and drag-and-drop. If the YAML is picked alone, the loader asks for each missing file in turn.
+- **`models.yaml` reproduces the previous app exactly.** A playwright comparison against pushed HEAD 29e726e found the facet panel, every facet popup, the table header and body for all 7 types, and 101 row popups byte-identical. The one deliberate change is that the link note class was renamed from `kind` to the generic `note`.
+- **Example:** `examples/books.yaml` + `books.csv` (30 fictional books, clearly marked EXAMPLE DATA) + `genres.yaml` (a taxonomy loaded by path). It shows CSV typing, a type selector built from a list field, numeric/categorical/boolean facets, a generated tree, a multi-valued frame, default sort, a non-sortable column and a links section built from a URL string.
+- `data/catalog.js` is still written by `build_data.py` but is no longer loaded by the app.
 - `scripts/build_data.py`: regenerates the data from `raw/`.
 
 ## 3. Layout
@@ -235,6 +244,9 @@ Two panels:
 - `NODE_PATH=<playwright node_modules> node tests/popover.test.js`: popover intent. Checks that the popup stays anchored, a quick or slow move across other rows into the popup does not switch rows, clicking Provenance works inside the viewport, switching happens only after the dwell time, a brief pass over a row is ignored, Esc closes it, and it hides after the grace period. Also checks the facet popup: crossing other facets into the popup keeps the target, switching happens after the dwell, and Esc closes it.
 - `NODE_PATH=<playwright node_modules> node tests/ui.test.js`: facet popups. Covers facets listed by name, hover opening the popup, a check revealing the child level in the popup, live results, checked items listed under the facet after leaving, hovering a checked item reopening the popup at depth, unchecking in the panel, type-switch hide/restore, All/Any in the popup, the anecdotal \*, the Available from facet (popup levels, frame, panel items), sorting and the row popover. Writes `tests/screenshot.png`.
 - `NODE_PATH=<playwright node_modules> node tests/findit.test.js`: the row highlight (bold, darker grey) is applied on open, moves on retarget and is cleared on Esc or leave. Find it here is first in the popup, lists links with `target=_blank`, every link is clickable (opens a new tab, network blocked in the test), and the popup never retargets while you click.
+- `node tests/config.test.js`: checks the schema export matches; models.yaml and books.yaml validate; error messages for a bad enum, an unknown key, a missing required key, an unknown type ref, a duplicate id and YAML syntax (with line); a missing-field warning; CSV parsing; books facets, chains, split, boolean, frame, default sort and labels; popup sections; template filters; and the genericity guard over `js/`.
+- `NODE_PATH=<playwright node_modules> node tests/books.test.js`: books over http (rows, title, header, type selector, facet popup chain, row popup and highlight, sorting, a non-sortable column). On file:// it covers the loader, YAML-then-dataset two-step, multi-select, folder pick and drag-and-drop. It also checks invalid config and 404 errors shown in the UI, the http default config, and the dist single file alone on file://.
+- All browser tests serve the project over a local http server (`tests/helpers.js`) and open `index.html?config=models.yaml`. The engine tests load `models.yaml` in node.
 
 ## 7. Known gaps
 - Only 10 image-gen scores.

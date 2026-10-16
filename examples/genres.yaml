@@ -1,0 +1,15 @@
+# Example taxonomy file referenced from books.yaml (tree: {path: genres.yaml})
+- key: fic
+  label: Fiction
+  children:
+    - {key: fic.mystery, label: Mystery}
+    - {key: fic.scifi, label: Sci-fi}
+    - {key: fic.fantasy, label: Fantasy}
+    - {key: fic.literary, label: Literary}
+- key: non
+  label: Non-fiction
+  children:
+    - {key: non.history, label: History}
+    - {key: non.science, label: Popular science}
+    - {key: non.biography, label: Biography}
+    - {key: non.cooking, label: Cooking}

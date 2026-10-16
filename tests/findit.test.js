@@ -1,16 +1,17 @@
 // NODE_PATH=<playwright node_modules> node tests/findit.test.js — row highlight + 'Find it here' links
 const { chromium } = require('playwright'); const path = require('path'); const assert = require('assert');
 (async () => {
+  const { serve, openApp } = require('./helpers'); const S = await serve(); const APP = S.base + 'index.html?config=models.yaml';
   const b = await chromium.launch(); const ctx = await b.newContext({ viewport: { width: 1400, height: 900 } });
-  await ctx.route(/^https?:/, r => r.abort()); // never hit the network from tests
+  await ctx.route(u => u.hostname !== '127.0.0.1', r => r.abort()); // never hit the network from tests
   const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
-  await p.goto('file://' + path.join(__dirname, '../index.html'));
+  await openApp(p, APP);
   const ok = []; const step = n => ok.push(n);
   const tr = i => p.locator(`#table tbody tr[data-i="${i}"]`);
   const hl = () => p.$$eval('#table tbody tr.hl', ts => ts.map(t => t.dataset.i));
   const popRow = () => p.locator('#pop').getAttribute('data-row');
   // catalog: links present, provenance recorded, only http(s)
-  const cat = await p.evaluate(() => CATALOG.models.filter(m => m.links && m.links.length).map(m => ({ l: m.links, pv: m.prov && m.prov.links })));
+  const cat = await p.evaluate(() => MF_APP.rows.filter(m => m.links && m.links.length).map(m => ({ l: m.links, pv: m.prov && m.prov.links })));
   assert(cat.length > 300); assert(cat.every(c => c.pv && c.l.every(x => /^https:\/\//.test(x.url)))); step(`catalog links with provenance (${cat.length} models)`);
   // highlight on open
   const b2 = await tr(2).locator('td').first().boundingBox();
@@ -46,5 +47,5 @@ const { chromium } = require('playwright'); const path = require('path'); const 
   await p.mouse.move(b2.x + 20, b2.y + b2.height / 2); await p.waitForTimeout(80); assert.deepStrictEqual(await hl(), ['2']);
   await p.mouse.move(5, 5, { steps: 3 }); await p.waitForTimeout(450); assert.deepStrictEqual(await hl(), []); step('leave clears highlight');
   assert.deepStrictEqual(errs, []);
-  ok.forEach(s => console.log('PASS', s)); console.log(`${ok.length} passed`); await b.close();
+  ok.forEach(s => console.log('PASS', s)); console.log(`${ok.length} passed`); await b.close(); S.close();
 })().catch(e => { console.error('FAIL', e.message); process.exit(1); });

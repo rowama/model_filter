@@ -1,0 +1,877 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/rowama/model_filter/docs/config.schema.json",
+  "title": "Filter app config",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "title",
+    "dataset",
+    "facets",
+    "table"
+  ],
+  "definitions": {
+    "treeNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key"
+      ],
+      "properties": {
+        "key": {
+          "type": [
+            "string",
+            "number",
+            "boolean"
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/treeNode"
+          }
+        }
+      }
+    },
+    "tree": {
+      "description": "Taxonomy tree: inline node list, {ref: <taxonomies key>}, {path: file.yaml|json}, or {generate: ...}.",
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/treeNode"
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "ref"
+          ],
+          "properties": {
+            "ref": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path"
+          ],
+          "properties": {
+            "path": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "generate"
+          ],
+          "properties": {
+            "generate": {
+              "enum": [
+                "top_n",
+                "prefix_groups",
+                "distinct"
+              ]
+            },
+            "n": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "other_label": {
+              "type": "string"
+            },
+            "separator": {
+              "type": "string"
+            },
+            "key_prefix": {
+              "type": "string"
+            },
+            "groups": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "prefix",
+                  "label"
+                ],
+                "properties": {
+                  "prefix": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "format": {
+      "description": "Number format.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "plain",
+            "si",
+            "money",
+            "precision",
+            "fixed",
+            "yearmonth"
+          ],
+          "description": "plain=String(v); si=1.2M/128k; money=$0.15/$2.50; precision=toPrecision(digits); fixed=toFixed(digits); yearmonth=fractional year -> YYYY-MM"
+        },
+        "digits": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 20
+        },
+        "prefix": {
+          "type": "string"
+        },
+        "suffix": {
+          "type": "string"
+        }
+      }
+    },
+    "section": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "links",
+            "fields",
+            "evidence",
+            "map",
+            "text"
+          ]
+        },
+        "title": {
+          "type": "string"
+        },
+        "field": {
+          "type": "string"
+        },
+        "class": {
+          "type": "string"
+        },
+        "collapsible": {
+          "type": "boolean"
+        },
+        "count_in_title": {
+          "type": "boolean"
+        },
+        "empty": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        },
+        "facet": {
+          "type": "string"
+        },
+        "link_text": {
+          "type": "string"
+        },
+        "quote": {
+          "type": "string"
+        },
+        "quote_max": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "label"
+            ],
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string",
+                "description": "Template: literal text with {field|filter:arg} placeholders (see docs/CONFIG.md#templates)."
+              },
+              "entries": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "field",
+                  "item"
+                ],
+                "properties": {
+                  "field": {
+                    "type": "string"
+                  },
+                  "item": {
+                    "type": "string",
+                    "description": "Template: literal text with {field|filter:arg} placeholders (see docs/CONFIG.md#templates)."
+                  },
+                  "join": {
+                    "type": "string"
+                  },
+                  "empty": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "title": {
+      "type": "string"
+    },
+    "dataset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "format",
+        "id"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Relative to the YAML file."
+        },
+        "format": {
+          "enum": [
+            "json",
+            "csv"
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "records": {
+          "type": "string",
+          "description": "JSON: dotted path to the record array (omit for a top-level array)."
+        },
+        "meta": {
+          "type": "string",
+          "description": "JSON: dotted path to a metadata object, usable in header.meta."
+        },
+        "csv": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "delimiter": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1
+            },
+            "list_delimiter": {
+              "type": "string",
+              "minLength": 1
+            },
+            "fields": {
+              "type": "object",
+              "additionalProperties": {
+                "enum": [
+                  "string",
+                  "number",
+                  "integer",
+                  "boolean",
+                  "list",
+                  "json"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "header": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "meta": {
+          "type": "string",
+          "description": "Template: literal text with {field|filter:arg} placeholders (see docs/CONFIG.md#templates)."
+        }
+      }
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "show": {
+          "type": "boolean"
+        },
+        "option": {
+          "type": "string",
+          "description": "Template: literal text with {field|filter:arg} placeholders (see docs/CONFIG.md#templates)."
+        },
+        "anecdotal_part": {
+          "type": "string",
+          "description": "Template: literal text with {field|filter:arg} placeholders (see docs/CONFIG.md#templates)."
+        },
+        "results": {
+          "type": "string",
+          "description": "Template: literal text with {field|filter:arg} placeholders (see docs/CONFIG.md#templates)."
+        }
+      }
+    },
+    "labels": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "option": {
+          "type": "string",
+          "description": "Template: literal text with {field|filter:arg} placeholders (see docs/CONFIG.md#templates)."
+        },
+        "unrated": {
+          "type": "string"
+        },
+        "range": {
+          "type": "string",
+          "description": "Template: literal text with {field|filter:arg} placeholders (see docs/CONFIG.md#templates)."
+        },
+        "range_open": {
+          "type": "string",
+          "description": "Template: literal text with {field|filter:arg} placeholders (see docs/CONFIG.md#templates)."
+        },
+        "path_separator": {
+          "type": "string"
+        }
+      }
+    },
+    "types": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "field",
+        "options"
+      ],
+      "properties": {
+        "field": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "all": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "label"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            }
+          }
+        },
+        "options": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "label"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "popups": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "facet": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "dwell_ms": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "grace_ms": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "row": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "dwell_ms": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "grace_ms": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "highlight": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "taxonomies": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/tree"
+      }
+    },
+    "facets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "label",
+          "kind",
+          "field"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+          },
+          "label": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "numeric",
+              "categorical",
+              "boolean"
+            ]
+          },
+          "field": {
+            "type": "string",
+            "description": "Dotted path into the record."
+          },
+          "multi": {
+            "type": "boolean",
+            "description": "Multi-valued (list) field: All/Any frame for 2+ checked siblings."
+          },
+          "types": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Type ids this facet applies to (default: all)."
+          },
+          "order": {
+            "type": "number",
+            "description": "Sort key for facet order (default: position in list)."
+          },
+          "unrated": {
+            "type": "boolean",
+            "description": "Offer an \"unrated\" option for missing values (default true)."
+          },
+          "parse": {
+            "enum": [
+              "number",
+              "yearmonth"
+            ]
+          },
+          "format": {
+            "description": "Number format.",
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind"
+            ],
+            "properties": {
+              "kind": {
+                "enum": [
+                  "plain",
+                  "si",
+                  "money",
+                  "precision",
+                  "fixed",
+                  "yearmonth"
+                ],
+                "description": "plain=String(v); si=1.2M/128k; money=$0.15/$2.50; precision=toPrecision(digits); fixed=toFixed(digits); yearmonth=fractional year -> YYYY-MM"
+              },
+              "digits": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 20
+              },
+              "prefix": {
+                "type": "string"
+              },
+              "suffix": {
+                "type": "string"
+              }
+            }
+          },
+          "unit": {
+            "type": "string"
+          },
+          "ranges": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "items": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            },
+            "description": "Level-1 ranges [lo, hi); hi null = open-ended."
+          },
+          "split": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "method": {
+                "const": "quantile"
+              },
+              "nice": {
+                "type": "boolean"
+              },
+              "step": {
+                "type": [
+                  "number",
+                  "string"
+                ],
+                "description": "Round boundaries to multiples of step (e.g. \"1/12\")."
+              },
+              "min_count": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "max_children": {
+                "type": "integer",
+                "minimum": 2,
+                "maximum": 10
+              }
+            }
+          },
+          "range_labels": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "closed": {
+                "type": "string",
+                "description": "Template: literal text with {field|filter:arg} placeholders (see docs/CONFIG.md#templates)."
+              },
+              "open": {
+                "type": "string",
+                "description": "Template: literal text with {field|filter:arg} placeholders (see docs/CONFIG.md#templates)."
+              },
+              "from_zero": {
+                "type": "string",
+                "description": "Template: literal text with {field|filter:arg} placeholders (see docs/CONFIG.md#templates)."
+              }
+            }
+          },
+          "tree": {
+            "$ref": "#/definitions/tree"
+          },
+          "value_labels": {
+            "enum": [
+              "path",
+              "leaf"
+            ]
+          },
+          "bool_labels": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "yes": {
+                "type": "string"
+              },
+              "no": {
+                "type": "string"
+              }
+            }
+          },
+          "anecdotal": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "exclude_field"
+            ],
+            "properties": {
+              "exclude_field": {
+                "type": "string",
+                "description": "Field listing values that are ONLY anecdotal."
+              },
+              "marker": {
+                "type": "string"
+              },
+              "row_flag_title": {
+                "type": "string"
+              }
+            }
+          },
+          "column": {
+            "anyOf": [
+              {
+                "const": false
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "label": {
+                    "type": "string"
+                  },
+                  "format": {
+                    "description": "Number format.",
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "kind"
+                    ],
+                    "properties": {
+                      "kind": {
+                        "enum": [
+                          "plain",
+                          "si",
+                          "money",
+                          "precision",
+                          "fixed",
+                          "yearmonth"
+                        ],
+                        "description": "plain=String(v); si=1.2M/128k; money=$0.15/$2.50; precision=toPrecision(digits); fixed=toFixed(digits); yearmonth=fractional year -> YYYY-MM"
+                      },
+                      "digits": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 20
+                      },
+                      "prefix": {
+                        "type": "string"
+                      },
+                      "suffix": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "display_field": {
+                    "type": "string"
+                  },
+                  "estimated": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "flag_field",
+                      "template"
+                    ],
+                    "properties": {
+                      "flag_field": {
+                        "type": "string"
+                      },
+                      "template": {
+                        "type": "string",
+                        "description": "Template: literal text with {field|filter:arg} placeholders (see docs/CONFIG.md#templates)."
+                      },
+                      "title_field": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "table": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "columns"
+      ],
+      "properties": {
+        "columns": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "field",
+                  "label"
+                ],
+                "properties": {
+                  "field": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "class": {
+                    "type": "string"
+                  },
+                  "sortable": {
+                    "type": "boolean"
+                  },
+                  "row_flag_marker": {
+                    "type": "boolean"
+                  },
+                  "format": {
+                    "description": "Number format.",
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "kind"
+                    ],
+                    "properties": {
+                      "kind": {
+                        "enum": [
+                          "plain",
+                          "si",
+                          "money",
+                          "precision",
+                          "fixed",
+                          "yearmonth"
+                        ],
+                        "description": "plain=String(v); si=1.2M/128k; money=$0.15/$2.50; precision=toPrecision(digits); fixed=toFixed(digits); yearmonth=fractional year -> YYYY-MM"
+                      },
+                      "digits": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 20
+                      },
+                      "prefix": {
+                        "type": "string"
+                      },
+                      "suffix": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "template": {
+                    "type": "string",
+                    "description": "Template: literal text with {field|filter:arg} placeholders (see docs/CONFIG.md#templates)."
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "facets"
+                ],
+                "properties": {
+                  "facets": {
+                    "enum": [
+                      "numeric",
+                      "all"
+                    ]
+                  },
+                  "sortable": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "default_sort": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "col"
+              ],
+              "properties": {
+                "col": {
+                  "type": "string"
+                },
+                "dir": {
+                  "enum": [
+                    "asc",
+                    "desc"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "unrated_last": {
+          "type": "boolean"
+        }
+      }
+    },
+    "row_popup": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "sections": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/section"
+          }
+        }
+      }
+    }
+  }
+}

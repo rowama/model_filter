@@ -1,0 +1,7 @@
+# deliberately invalid config (used by tests/books.test.js)
+version: 1
+title: Broken
+dataset: {path: books.csv, format: xml, id: id}
+facets:
+  - {id: genre, label: Genre, kind: tree, field: genre}
+table: {columns: [{field: title, label: Title}]}

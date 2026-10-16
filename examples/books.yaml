@@ -1,0 +1,64 @@
+# EXAMPLE config: a tiny fictional book catalog (books.csv is made-up example data).
+# Proves the UI is generic: same js/, different YAML + CSV. See docs/CONFIG.md.
+version: 1
+title: Book Finder (example data)
+dataset:
+  path: books.csv
+  format: csv
+  id: id
+  csv:
+    delimiter: ","
+    list_delimiter: "|"
+    fields: {year: integer, pages: integer, rating: number, price: number, formats: list, tags: list, in_print: boolean}
+header:
+  meta: "EXAMPLE DATA — {total} fictional books"
+counts: {show: true, results: "{n} of {total} books"}
+types:
+  field: formats
+  label: Format
+  all: {id: any, label: Any format}
+  options: [{id: print, label: Print}, {id: ebook, label: E-book}, {id: audio, label: Audiobook}]
+popups:
+  facet: {dwell_ms: 250, grace_ms: 200}
+  row: {highlight: true}
+facets:
+  - {id: genre, label: Genre, kind: categorical, field: genre, tree: {path: genres.yaml}}
+  - id: price
+    label: Price
+    kind: numeric
+    field: price
+    format: {kind: precision, digits: 4, prefix: $}
+    ranges: [[0, 10], [10, 20], [20, null]]
+    split: {method: quantile, nice: true, min_count: 4, max_children: 3}
+    column: {label: Price, format: {kind: fixed, digits: 2, prefix: $}}
+  - {id: rating, label: Rating, kind: numeric, field: rating, ranges: [[0, 3.5], [3.5, 4.2], [4.2, null]], unit: " ★", column: {label: Rating, format: {kind: fixed, digits: 1}}}
+  - {id: pages, label: Length, kind: numeric, field: pages, unit: " pages", ranges: [[0, 250], [250, 500], [500, null]], split: {min_count: 4}, column: {label: Pages}}
+  - id: year
+    label: Published
+    kind: numeric
+    field: year
+    ranges: [[0, 1980], [1980, 2000], [2000, 2015], [2015, null]]
+    split: {step: 1, min_count: 4}
+    range_labels: {from_zero: "before {hi}", open: "{lo} or later", closed: "{lo}–{hi_step}"}
+    column: {label: Year}
+  - {id: tags, label: Tag, kind: categorical, field: tags, multi: true, unrated: false, tree: {generate: distinct}}
+  - {id: language, label: Language, kind: categorical, field: language, tree: {generate: top_n, n: 2, other_label: Other languages}}
+  - {id: inPrint, label: In print, kind: boolean, field: in_print, types: [print], bool_labels: {yes: In print, no: Out of print}}
+table:
+  columns:
+    - {field: title, label: Title}
+    - {field: author, label: Author}
+    - {facets: numeric}
+    - {field: notes, label: Notes, class: c, sortable: false}
+  default_sort: {col: title, dir: asc}
+row_popup:
+  sections:
+    - {type: links, title: Find it here, field: url, collapsible: true, count_in_title: true, class: find, empty: No link}
+    - type: fields
+      rows:
+        - {label: Genre, value: "{genre|tags:genre}"}
+        - {label: Formats, value: "{formats|join:, }"}
+        - {label: Tags, value: "{tags|join:, |default:none}"}
+        - {label: In print, value: "{in_print|yesno:yes,no,unknown}"}
+        - {label: Rating, value: "{rating|default:unrated}"}
+    - {type: text, title: Notes, field: notes}

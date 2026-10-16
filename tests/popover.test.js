@@ -1,9 +1,10 @@
 // NODE_PATH=<playwright node_modules> node tests/popover.test.js — row hover popover intent behaviour
 const { chromium } = require('playwright'); const path = require('path'); const assert = require('assert');
 (async () => {
+  const { serve, openApp } = require('./helpers'); const S = await serve(); const APP = S.base + 'index.html?config=models.yaml';
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 1400, height: 900 } });
   const errs = []; p.on('pageerror', e => errs.push(e.message));
-  await p.goto('file://' + path.join(__dirname, '../index.html'));
+  await openApp(p, APP);
   const ok = []; const step = n => ok.push(n);
   const row = i => p.locator(`#table tbody tr[data-i="${i}"] td:first-child`);
   const popRow = () => p.locator('#pop').getAttribute('data-row');
@@ -57,5 +58,5 @@ const { chromium } = require('playwright'); const path = require('path'); const 
   await p.waitForTimeout(350); assert.strictEqual(await p.locator('#fpop').getAttribute('data-key'), 'priceOut'); step('facet popup: retarget after dwell');
   await p.keyboard.press('Escape'); assert(await p.locator('#fpop').isHidden()); step('facet popup: Esc closes');
   assert.deepStrictEqual(errs, []); step('no page errors');
-  console.log(ok.map(s => 'PASS ' + s).join('\n')); await b.close();
+  console.log(ok.map(s => 'PASS ' + s).join('\n')); await b.close(); S.close();
 })().catch(e => { console.error('FAIL', e.message); process.exit(1); });

@@ -1,9 +1,10 @@
 // UI test (facet popups): NODE_PATH=<dir with playwright> node tests/ui.test.js
 const { chromium } = require('playwright'); const path = require('path'); const assert = require('assert');
 (async () => {
+  const { serve, openApp } = require('./helpers'); const S = await serve(); const APP = S.base + 'index.html?config=models.yaml';
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 1400, height: 900 } });
   const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type() === 'error' && errs.push(m.text()));
-  await p.goto('file://' + path.join(__dirname, '../index.html'));
+  await openApp(p, APP);
   const ok = []; const step = n => ok.push(n);
   const rows = () => p.locator('#table tbody tr').count();
   const fpop = p.locator('#fpop');
@@ -60,7 +61,7 @@ const { chromium } = require('playwright'); const path = require('path'); const 
   await p.keyboard.press('Escape'); assert(await fpop.isHidden());
   assert(await p.locator('#facets .facet[data-facet=jobs] label.sel').count() >= 2); step('Esc closes; selections in panel');
   // anecdotal asterisk (fresh page): Job -> Coding -> Refactoring
-  await p.goto('file://' + path.join(__dirname, '../index.html'));
+  await openApp(p, APP);
   await p.hover('.fname[data-facet=jobs]'); await p.waitForTimeout(80);
   const jb2 = await fpop.boundingBox(); await p.mouse.move(jb2.x + 30, jb2.y + 40, { steps: 5 });
   await popBox(/^Job: Coding\(/).locator('input').check();
@@ -69,7 +70,7 @@ const { chromium } = require('playwright'); const path = require('path'); const 
   assert(await p.locator('#table tbody .anec').count() > 0); step('anecdotal * in popup count + row');
   await leave();
   // Available from facet in popup (All types): level 1 -> level 2 providers, All/Any frame
-  await p.goto('file://' + path.join(__dirname, '../index.html'));
+  await openApp(p, APP);
   await p.hover('.fname[data-facet=availableFrom]'); await p.waitForTimeout(80);
   const ab = await fpop.boundingBox(); await p.mouse.move(ab.x + 30, ab.y + 40, { steps: 5 });
   const before = await rows();
@@ -85,5 +86,5 @@ const { chromium } = require('playwright'); const path = require('path'); const 
   await p.hover('#table tbody tr:first-child td:first-child'); await p.waitForTimeout(80); assert(await p.locator('#pop').isVisible()); step('row popover');
   await p.screenshot({ path: path.join(__dirname, 'screenshot.png') });
   assert.deepStrictEqual(errs, []); step('no console errors');
-  console.log(ok.map(s => 'PASS ' + s).join('\n')); await b.close();
+  console.log(ok.map(s => 'PASS ' + s).join('\n')); await b.close(); S.close();
 })().catch(e => { console.error('FAIL', e.message, e.stack.split('\n').find(l => l.includes('ui.test'))); process.exit(1); });

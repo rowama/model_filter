@@ -39,4 +39,18 @@ td .u{color:#a6adb5;font-style:italic}tr:hover td{background:#f5f8ff}
 .pop details.find summary { cursor: pointer; font-weight: 600; }
 .pop details.find ul { margin: 4px 0 0; padding-left: 16px; }
 .pop details.find li { margin: 2px 0; }
-.pop details.find .kind { color: #888; font-size: 11px; }
+.pop details.find .note { color: #888; font-size: 11px; }
+[hidden]{display:none!important}
+/* config loader (file:// picker, errors) */
+#loader{max-width:760px;margin:24px auto;padding:16px 20px;background:#fff;border:1px solid #e3e6ea;border-radius:8px}
+#loader h2{font-size:15px;margin:0 0 8px}
+#drop{border:2px dashed #c9d1da;border-radius:8px;padding:24px;text-align:center;color:#6b7480}
+#drop.over{border-color:#4a7bd0;background:#f2f6fd}
+#drop .btns{margin-top:12px;display:flex;gap:8px;justify-content:center}
+.btn{display:inline-block;padding:4px 10px;border:1px solid #c9d1da;border-radius:4px;background:#f6f8fa;cursor:pointer;color:#1d232b}
+.btn input{display:none}
+#need{margin-top:12px;padding:8px 10px;background:#fff8e1;border:1px solid #f0d98a;border-radius:4px}
+#errors{margin-top:12px;padding:8px 10px;background:#fdecec;border:1px solid #e9a9a9;border-radius:4px;color:#8a1f1f}
+#errors ul{margin:4px 0 0;padding-left:18px}
+#warnings{padding:4px 16px;background:#fff8e1;color:#7a5b00;font-size:12px;border-bottom:1px solid #f0d98a}
+th.nosort{cursor:default}
