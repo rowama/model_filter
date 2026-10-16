@@ -247,6 +247,7 @@ table:
 row_popup:
   sections:
     - {type: links, title: Find it here, field: links, url: url, text: label, note: kind, collapsible: true, count_in_title: true, class: find, empty: No verified provider pages}
+    - {type: map, title: "Model IDs (exact strings per access path)", field: modelIds}
     - type: fields
       rows:
         - {label: Types, value: "{types|join:, }"}
