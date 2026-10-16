@@ -44,6 +44,18 @@ const { chromium } = require('playwright'); const path = require('path'); const 
   // 7 leaving table hides after grace
   await p.mouse.move(r8.x + 20, r8.y + r8.height / 2); await p.mouse.move(r8.x + 25, r8.y + r8.height / 2); assert(await p.locator('#pop').isVisible());
   await p.mouse.move(150, 300); await p.waitForTimeout(350); assert(await p.locator('#pop').isHidden()); step('hides ~200ms after leaving rows');
+  // facet popup shares the mechanics: move from a facet across other facets into its popup -> no retarget; dwell retargets
+  const f1 = await p.locator('.fname[data-facet=weights]').boundingBox();
+  await p.mouse.move(f1.x + 20, f1.y + f1.height / 2); await p.waitForTimeout(60);
+  assert.strictEqual(await p.locator('#fpop').getAttribute('data-key'), 'weights');
+  const fb = await p.locator('#fpop').boundingBox();
+  await p.mouse.move(fb.x + 30, fb.y + fb.height - 15, { steps: 10 });
+  assert.strictEqual(await p.locator('#fpop').getAttribute('data-key'), 'weights'); step('facet popup: crossing other facets into popup keeps target');
+  const f3 = await p.locator('.fname[data-facet=priceOut]').boundingBox();
+  await p.mouse.move(f3.x + 20, f3.y + f3.height / 2, { steps: 3 }); await p.waitForTimeout(120);
+  assert.strictEqual(await p.locator('#fpop').getAttribute('data-key'), 'weights');
+  await p.waitForTimeout(350); assert.strictEqual(await p.locator('#fpop').getAttribute('data-key'), 'priceOut'); step('facet popup: retarget after dwell');
+  await p.keyboard.press('Escape'); assert(await p.locator('#fpop').isHidden()); step('facet popup: Esc closes');
   assert.deepStrictEqual(errs, []); step('no page errors');
   console.log(ok.map(s => 'PASS ' + s).join('\n')); await b.close();
 })().catch(e => { console.error('FAIL', e.message); process.exit(1); });

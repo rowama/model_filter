@@ -128,7 +128,7 @@ Tags are **heuristic**: regex keywords over the name, description and HF tags, p
 
 ## 3. Layout
 Two panels:
-- **Left:** filter panel, a vertical list with infinite scroll that renders in chunks as you scroll.
+- **Left:** filter panel: the model type radios, then a list of facets (see §4a). *(Superseded: the infinite-scroll flat checkbox list.)*
 - **Right:** results table.
 
 ## 4. Filter panel rules
@@ -136,13 +136,13 @@ Two panels:
    - Options: All types (default), Text generation, Embeddings, Vision, Text-to-image, Speech-to-text, Text-to-speech.
    - **All types** shows only the dimensions shared by all types.
    - A specific type shows only the dimensions that apply to it.
-   - Selections in dimensions hidden by a type switch are hidden and preserved, then restored when you switch back. Their refinement levels keep their place in the list.
-2. **Checkboxes only** below the radios. No headers. Each label stands alone and includes the dimension name, e.g. "Context window: 100k–500k tokens (23)".
+   - Selections in dimensions hidden by a type switch are hidden and preserved, then restored when you switch back. Their facets disappear and come back with their selections.
+2. ~~Checkboxes only below the radios, no headers~~ *(superseded by §4a: the panel lists facet names; checkboxes live in facet popups, and checked items are listed under their facet)*. Still true: each label stands alone and includes the dimension name, e.g. "Context window: 100k–500k tokens (23)". Each label stands alone and includes the dimension name, e.g. "Context window: 100k–500k tokens (23)".
    - The count is the number of models the box would match, given all other dimensions' current selections and this box's ancestor levels.
    - Zero-count boxes are **hidden** (the engine omits them from `options`). Exception: a CHECKED box stays visible even at zero count so it can be unchecked.
-   - Because hiding changes the list length, the clicked box is anchored by adjusting scroll; when the panel is already at scrollTop 0 and boxes above it disappear, it can move up (it always stays visible).
+   - ~~Scroll anchoring of the clicked box in the flat list~~ *(superseded; refinement levels now grow downward inside the popup)*.
    - Every dimension has an "unrated" box at level 1.
-3. **Order:** weights, license, input price, output price, intelligence, context, jobs, aptitude scores, then maker, params, max output, speed, release, tool calling, JSON, reasoning, runs locally, input modalities, languages, embedding dim. Refinement levels are appended at the bottom in the order they are revealed.
+3. **Order:** weights, license, input price, output price, intelligence, context, jobs, aptitude scores, then maker, params, max output, speed, release, tool calling, JSON, reasoning, runs locally, input modalities, languages, embedding dim. This is the facet order. ~~Refinement levels are appended at the bottom of the panel~~ *(superseded: each facet's levels stack inside its popup)*.
 4. **Refinement chains:** each dimension has levels.
    - Checked boxes within a level are OR'd.
    - Checking at level k reveals ONE combined level k+1, generated from the UNION of level k's checked boxes.
@@ -162,9 +162,28 @@ Two panels:
 8. **Multi-valued categorical dims (Job, Input, Language):**
    - When 2+ boxes at the same level are checked, a light frame groups them with radios "All of these" (default, intersection) and "Any of these" (union).
    - The boxes animate (FLIP) into the frame.
-   - The clicked box is anchored: the scroll position is adjusted so it stays at the same screen position. Content above the viewport never shifts visually, and the box is scrolled into view if needed.
+   - ~~Scroll anchoring in the panel~~ *(superseded)*. The frame now appears inside the facet popup.
    - Single-valued dims always OR within a level, with no frame.
 9. **No submit button.** Every change updates results instantly.
+
+## 4a. Filter facet popups (current UX, 2026-10-15)
+- **Panel:** model type radios at the top. Below them, one entry per visible dimension (**facet**), shown by name only with no checkbox, in the §4.3 order. Every numeric dimension is its own facet (Input price and Output price are separate). The categorical taxonomy (Job) is one facet.
+- **Facet popup:** hovering a facet name opens its popup beside the panel. It uses the same mechanics as the row popover (`js/hoverpop.js`):
+  - anchored, static once shown
+  - switches to another facet after about 300ms of dwell
+  - a safe triangle keeps it from switching while you move toward it
+  - locked while the cursor is inside
+  - about 200ms grace on leaving
+  - Esc closes it
+  - kept inside the viewport
+- **Inside the popup:** the facet's level-1 checkboxes, with live counts. Zero-count unchecked boxes are hidden.
+  - Checking a box immediately reveals the next refinement level inside the popup, stacked underneath and indented.
+  - All §4 chain rules apply: OR within a level, union-based children, deepest checked level governs, retained children on uncheck, numeric quantile splits rounded to nice numbers, min 6, All/Any frame for multi-valued categorical siblings (with FLIP animation).
+  - The results table updates live on every click.
+- **On close** (cursor leaves plus grace, or Esc), the checked items appear in the panel directly under their facet name. They are checked checkboxes with standalone labels and counts, and unchecking one there updates results live. While a popup is open, the panel is not re-rendered (only the popup and the table are), so the panel does not shift under the cursor.
+- **Hovering a checked item** in the panel opens its facet's popup with every level down to the deepest checked level, plus the next level if one applies.
+- The engine and data interface are unchanged; this is purely a UI-layer change. Hidden-on-type-switch preservation still applies.
+- **Alpha UX evaluation:** discoverability of hover-only facets; touch and keyboard access (no click or focus opening yet).
 
 ### ALPHA UX EVALUATION ITEMS
 - The All/Any grouping frame: discoverability, animation, default "All".
@@ -186,8 +205,8 @@ Two panels:
 ## 6. Tests
 - `node tests/engine.test.js`: 15 query-logic tests covering OR within a level, AND across dims, counts, governing level, union child generation (numeric and categorical), uncheck retention, All/Any frame, type hide/restore, shared dims, zero-count hiding (checked zero kept), sorting, the min-6 rule, and unrated counting.
 - `node tests/enrich.test.js`: anecdotal tags (counted as tagged, `anecdotal` count, row flag), the estimated-params flag and its formatting, and catalog checks (provenance, no community evidence feeding scores, URLs on evidence).
-- `NODE_PATH=<playwright node_modules> node tests/popover.test.js`: popover intent. Checks that the popup stays anchored, a quick or slow move across other rows into the popup does not switch rows, clicking Provenance works inside the viewport, switching happens only after the dwell time, a brief pass over a row is ignored, Esc closes it, and it hides after the grace period.
-- `NODE_PATH=<playwright node_modules> node tests/ui.test.js`: headless Chromium end to end, writes `tests/screenshot.png`.
+- `NODE_PATH=<playwright node_modules> node tests/popover.test.js`: popover intent. Checks that the popup stays anchored, a quick or slow move across other rows into the popup does not switch rows, clicking Provenance works inside the viewport, switching happens only after the dwell time, a brief pass over a row is ignored, Esc closes it, and it hides after the grace period. Also checks the facet popup: crossing other facets into the popup keeps the target, switching happens after the dwell, and Esc closes it.
+- `NODE_PATH=<playwright node_modules> node tests/ui.test.js`: facet popups. Covers facets listed by name, hover opening the popup, a check revealing the child level in the popup, live results, checked items listed under the facet after leaving, hovering a checked item reopening the popup at depth, unchecking in the panel, type-switch hide/restore, All/Any in the popup, the anecdotal \*, sorting and the row popover. Writes `tests/screenshot.png`.
 
 ## 7. Known gaps
 - Only 10 image-gen scores.

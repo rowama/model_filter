@@ -23,3 +23,11 @@ td .u{color:#a6adb5;font-style:italic}tr:hover td{background:#f5f8ff}
 #pop b{display:inline-block;min-width:92px;color:#59626d;font-weight:500}
 
 .anec{color:#c26b00;font-weight:600;margin-left:1px}#pop .sec{margin-top:6px;color:#c26b00}#pop .ev{margin:2px 0}#pop a{color:#3b6fd6}#pop details{margin-top:6px}#pop .prov{color:#59626d;font-size:11px}
+.facet{padding:4px 0;border-bottom:1px solid #f0f2f4}
+.fname{display:flex;justify-content:space-between;padding:4px 6px;border-radius:4px;cursor:default;font-weight:500}
+.fname:hover{background:#f3f5f7}.chev{color:#a6adb5}
+.box.sel{margin-left:6px}
+.fpop{position:fixed;z-index:10;width:360px;max-height:80vh;overflow:auto;background:#fff;border:1px solid #d7dde4;box-shadow:0 6px 20px rgba(0,0,0,.1);border-radius:6px;padding:6px 8px}
+.fpop .ftitle{font-weight:600;padding:2px 4px 6px;border-bottom:1px solid #eef0f2;margin-bottom:4px}
+.fpop .lvl+.lvl{border-top:1px dashed #e3e6ea;margin-top:4px;padding-top:4px;margin-left:10px}
+.fpop .none{color:#a6adb5;font-size:12px;padding:2px 4px}
