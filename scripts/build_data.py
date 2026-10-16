@@ -18,7 +18,7 @@ def rec(key):
                            comments=[], context=None, maxOut=None, params=None, speed=None, release=None, tools=None, json=None,
                            reasoning=None, inputMods=None, languages=None, localGPU=None, embedDim=None, desc='', sources=set(),
                            hf=None, orid=None, downloads=None, bench={}, prov={}, latency=None, aaIndex=None, aaIndexEstimated=None,
-                           priceAudioMin=None, priceChars=None, paramsEstimated=False, jobsAnecdotal={})
+                           priceAudioMin=None, priceChars=None, paramsEstimated=False, jobsAnecdotal={}, links=None)
     return models[key]
 
 templates = {}
@@ -328,6 +328,7 @@ for r in models.values():
     if 'embed' in ty and not ty & {'text', 'vision'}: tags = {x for x in tags if x.startswith('retrieval')}
     r['jobs'] = sorted(tags); r['_heurJobs'] = set(tags)
 AVAIL_STATS = enrich.availability(models, R)
+LINK_STATS = enrich.links(models, R)
 COMM_STATS = enrich.community(models, R, json.load(open(f'{R}/community_targets.json')))
 for r in models.values():
     r['jobs'] = sorted(set(r['jobs']) | set(r['jobsAnecdotal']))  # anecdotal tags count as tagged; flagged via jobsAnecdotal
@@ -338,11 +339,11 @@ for k, r in models.items():
     if not r['types']: continue
     o = {f: r[f] for f in ['id', 'name', 'maker', 'weights', 'license', 'priceIn', 'priceOut', 'intelligence', 'context', 'maxOut', 'params', 'speed',
                            'release', 'tools', 'json', 'reasoning', 'inputMods', 'languages', 'localGPU', 'embedDim', 'jobs',
-                           'aptCoding', 'aptReasoning', 'aptWriting', 'aptInstruct', 'aptAgents', 'aptVision', 'aptImageGen', 'benchRaw', 'benchPct', 'hf', 'orid', 'aptEmbedding', 'aptSTT', 'aptTTS', 'latency', 'aaIndex', 'aaIndexEstimated', 'priceAudioMin', 'priceChars', 'paramsEstimated', 'prov', 'jobsAnecdotal', 'jobsAnecdotalOnly', 'availableFrom']}
+                           'aptCoding', 'aptReasoning', 'aptWriting', 'aptInstruct', 'aptAgents', 'aptVision', 'aptImageGen', 'benchRaw', 'benchPct', 'hf', 'orid', 'aptEmbedding', 'aptSTT', 'aptTTS', 'latency', 'aaIndex', 'aaIndexEstimated', 'priceAudioMin', 'priceChars', 'paramsEstimated', 'prov', 'jobsAnecdotal', 'jobsAnecdotalOnly', 'availableFrom', 'links']}
     o['types'] = sorted(r['types']); o['sources'] = sorted(r['sources']); o['comments'] = '; '.join(r['comments'])
     out.append(o)
 snap = '2026-10-14'
-meta = dict(snapshotDate=snap, enrichDate='2026-10-15', enrichStats=ENRICH_STATS, communityStats=COMM_STATS, availabilityStats=AVAIL_STATS, arenaPublishDate=arena_date, counts=collections.Counter(t for o in out for t in o['types']), total=len(out),
+meta = dict(snapshotDate=snap, enrichDate='2026-10-15', enrichStats=ENRICH_STATS, communityStats=COMM_STATS, availabilityStats=AVAIL_STATS, linkStats=LINK_STATS, arenaPublishDate=arena_date, counts=collections.Counter(t for o in out for t in o['types']), total=len(out),
             benchMatches=bench_src, skippedAliases=skipped_alias)
 open(f'{OUT}/catalog.js', 'w').write('(typeof window !== "undefined" ? window : globalThis).CATALOG = ' + json.dumps({'meta': meta, 'models': out}) + ';\n')
 json.dump({'meta': meta, 'models': out}, open(f'{OUT}/catalog.json', 'w'))

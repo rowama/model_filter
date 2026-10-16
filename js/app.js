@@ -113,13 +113,22 @@
       ['AA index', mo.aaIndex == null ? 'unrated' : mo.aaIndex + (mo.aaIndexEstimated ? ' (AA-estimated)' : '')],
       ['Benchmarks', esc(Object.entries(mo.benchRaw || {}).map(([k, v]) => `${k} ${v} (p${mo.benchPct[k]})`).join(', ') || 'none')],
       ['ID', esc(mo.orid || mo.hf || mo.id)], ['Sources', esc(mo.sources.join(', '))]];
-    pop.innerHTML = rowsH.map(([k, v]) => `<div><b>${k}</b> ${v}</div>`).join('') +
+    const L = mo.links || [];
+    const find = `<details class="find"><summary>Find it here (${L.length})</summary>` + (L.length ? `<ul>` + L.map(l =>
+      `<li><a href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">${esc(l.label)}</a> <span class="kind">${esc(l.kind)}</span></li>`).join('') + `</ul>` :
+      `<div class="none">No verified provider pages</div>`) + `</details>`;
+    pop.innerHTML = find + rowsH.map(([k, v]) => `<div><b>${k}</b> ${v}</div>`).join('') +
       (anec ? `<div class="sec">* anecdotal community reports (not used in scores):</div>${anec}` : '') +
       (prov ? `<details><summary>Provenance</summary><div class="prov">${prov}</div></details>` : '');
     pop.hidden = false;
   };
   const rowPop = MF_HOVERPOP.createHoverPopover({ pop, container: $('#table tbody'), selector: 'tr', keyOf: el => el.dataset.i,
-    render: (k) => { showPop($(`#table tbody tr[data-i="${k}"]`)); pop.dataset.row = k; } });
+    render: (k) => { showPop($(`#table tbody tr[data-i="${k}"]`)); pop.dataset.row = k; },
+    onOpen: (k) => hlRow(k), onClose: () => hlRow(null) });
+  function hlRow(k) {
+    document.querySelectorAll('#table tbody tr.hl').forEach(t => t.classList.remove('hl'));
+    if (k != null) { const t = $(`#table tbody tr[data-i="${k}"]`); t && t.classList.add('hl'); }
+  }
   const _renderTable = renderTable; renderTable = function () { rowPop.close(); _renderTable(); };
   window.MF_APP = { getState: () => state, engine, facetPop, rowPop };
   update();

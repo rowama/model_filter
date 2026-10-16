@@ -27,7 +27,7 @@ const { chromium } = require('playwright'); const path = require('path'); const 
   assert.strictEqual(await popRow(), '2', 'retargeted while moving toward popup'); step('crossing other rows toward popup does not retarget');
   // 3 locked inside popup; click Provenance
   await p.waitForTimeout(400); assert.strictEqual(await popRow(), '2', 'retargeted while inside popup');
-  await p.click('#pop details summary'); assert(await p.locator('#pop details').evaluate(d => d.open)); assert(await inView());
+  await p.click('#pop details:not(.find) summary'); assert(await p.locator('#pop details:not(.find)').evaluate(d => d.open)); assert(await inView());
   step('locked in popup; Provenance expands and stays in viewport');
   // 4 leave popup onto a row -> retarget only after dwell
   const r8 = await row(8).boundingBox();

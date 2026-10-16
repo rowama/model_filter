@@ -141,4 +141,12 @@ t('Available from: provenance recorded, Maker facet unchanged', () => {
   CATALOG.models.filter(m => (m.availableFrom || []).includes('self:Hugging Face (download)')).forEach(m => assert.strictEqual(m.weights, 'Open'));
   assert(grp(q(sel('all', {})), 'maker:0').options.some(o => o.label === 'Maker: openai'));
 });
+t('Find it here: links only from verified raw/link_check.json, with provenance', () => {
+  const lc = require('../raw/link_check.json');
+  CATALOG.models.forEach(m => (m.links || []).forEach(l => {
+    const r = lc.results[l.url]; assert(r && r.ok && r.status === 200, l.url); assert(m.prov.links, m.id);
+    const c = lc.candidates.find(c => c.url === l.url); assert.strictEqual(c.id, m.id);
+  }));
+  const m = CATALOG.models.find(m => m.orid && m.links); assert(m.links.some(l => l.url === 'https://openrouter.ai/' + m.orid));
+});
 console.log(`\n${pass} passed, ${fail} failed`); process.exit(fail ? 1 : 0);

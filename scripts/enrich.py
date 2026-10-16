@@ -244,3 +244,25 @@ def availability(models, R):
         if av: r['prov']['availableFrom'] = '; '.join(sorted(src))
         for a in av: stats[a.split(':')[0]] += 1
     return stats
+
+# ---------- 'Find it here' links: only URLs from real IDs that passed raw/link_check.json ----------
+LINK_LABEL = {'openrouter': ('OpenRouter', 'Aggregator'), 'huggingface': ('Hugging Face', 'Model card'), 'openai-docs': ('OpenAI docs', 'Maker'),
+              'google-ai-docs': ('Google AI docs', 'Maker'), 'mistral-docs': ('Mistral docs', 'Maker'), 'featherless': ('Featherless', 'Aggregator'),
+              'deepinfra': ('DeepInfra', 'Aggregator'), 'together': ('Together', 'Aggregator')}
+LINK_ORDER = ['openai-docs', 'google-ai-docs', 'mistral-docs', 'huggingface', 'openrouter', 'deepinfra', 'featherless', 'together']
+def links(models, R):
+    p = f'{R}/link_check.json'
+    stats = collections.Counter()
+    if not os.path.exists(p): return stats
+    lc = json.load(open(p)); res = lc['results']
+    by = collections.defaultdict(list)
+    for c in lc['candidates']:
+        v = res.get(c['url'])
+        if v and v['ok']: by[c['id']].append(c)
+    for k, cs in by.items():
+        if k not in models: continue
+        cs.sort(key=lambda c: LINK_ORDER.index(c['pattern']))
+        models[k]['links'] = [{'label': LINK_LABEL[c['pattern']][0], 'kind': LINK_LABEL[c['pattern']][1], 'url': c['url']} for c in cs]
+        models[k]['prov']['links'] = f"URL patterns from real IDs in data, each verified HTTP 200 on {lc['checked']} (raw/link_check.json)"
+        for c in cs: stats[c['pattern']] += 1
+    return stats

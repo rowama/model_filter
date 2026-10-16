@@ -31,3 +31,12 @@ td .u{color:#a6adb5;font-style:italic}tr:hover td{background:#f5f8ff}
 .fpop .ftitle{font-weight:600;padding:2px 4px 6px;border-bottom:1px solid #eef0f2;margin-bottom:4px}
 .fpop .lvl+.lvl{border-top:1px dashed #e3e6ea;margin-top:4px;padding-top:4px;margin-left:10px}
 .fpop .none{color:#a6adb5;font-size:12px;padding:2px 4px}
+
+/* row whose hover popup is showing */
+#table tbody tr.hl td { background: #e4e6ea; }
+#table tbody tr.hl td:first-child { font-weight: 700; }
+.pop details.find { margin: 0 0 6px; padding: 4px 6px; background: #f4f6f9; border-radius: 4px; }
+.pop details.find summary { cursor: pointer; font-weight: 600; }
+.pop details.find ul { margin: 4px 0 0; padding-left: 16px; }
+.pop details.find li { margin: 2px 0; }
+.pop details.find .kind { color: #888; font-size: 11px; }
