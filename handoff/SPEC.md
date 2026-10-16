@@ -241,3 +241,187 @@ Automated tests must cover: OR within a level, AND across facets, counts, the go
 - Bad configurations produce precise, location-specific errors and leave a running configuration intact.
 - No value, price, score, estimate or link in the data is invented; unrated stays unrated.
 - All automated tests pass.
+
+## Appendix A: Configuration file contract
+
+This appendix is normative. It is the complete, exact vocabulary of the Quick Filter configuration file as a public, user-facing contract. Key names, literal values and defaults must be implemented exactly as written. Key names and literal values are shown in plain text inside double quotes.
+
+### A.1 General rules
+
+- The file is YAML. Full YAML must be accepted, including anchors and aliases (an anchor such as "&q4" defined on one value and reused elsewhere with the alias "*q4"); the AI-model reference configuration relies on them, for example to share one list of score ranges and one column format across many facets.
+- YAML 1.2 core rules apply: only true and false (any letter case) are booleans, so unquoted yes, no, on and off are ordinary strings. This matters because "bool_labels" uses the keys "yes" and "no".
+- The top level must be a mapping. Unknown keys are errors at every level where this appendix lists the allowed keys; the error names the path of the unknown key and lists the allowed keys. Missing required keys, wrong value types, values outside an allowed list, numbers outside their limits and strings that break a pattern are errors too, each reported with its path (for example "facets[0].kind: must be one of numeric, categorical, boolean").
+- Types used below: string, number (any number, including whole numbers), integer (whole number), boolean (true or false), null, list, mapping.
+- A "dotted path" is a field name, or several names joined by a full stop to reach into nested values (for example "prov.params").
+- All relative file locations (dataset, taxonomy files) are resolved relative to the configuration file's own location.
+- A conforming app must accept both shipped reference configurations, the AI-model configuration and the book example configuration (with its separate genre taxonomy file), completely unchanged.
+
+### A.2 Top-level keys
+
+- "version": required. Must be exactly the integer "1".
+- "title": required, string. Used as the page title and header title, and as part of the saved-filter identity.
+- "dataset": required, mapping (A.3).
+- "header": optional, mapping (A.4).
+- "counts": optional, mapping (A.5).
+- "labels": optional, mapping (A.6).
+- "types": optional, mapping (A.7). Without it there is no type selector.
+- "popups": optional, mapping (A.8).
+- "taxonomies": optional, mapping from a taxonomy name (any string) to a tree (A.9).
+- "facets": required, list with at least one facet (A.10), in display order.
+- "table": required, mapping (A.12).
+- "row_popup": optional, mapping (A.13).
+
+No other top-level key is allowed.
+
+### A.3 "dataset"
+
+- "path": required, string. Location of the data file, relative to the configuration.
+- "format": required, one of "json" or "csv".
+- "id": required, string. Name of the unique id field. Every record must have it; a record without it is a fatal error.
+- "records": optional, string (dotted path). For JSON: where the list of records sits inside the file (the AI-model configuration uses "models"). Omit when the file itself is a list. If the value found is not a list, it is an error.
+- "meta": optional, string (dotted path). For JSON: a metadata mapping whose fields can be used as placeholders in "header" "meta" (the AI-model configuration uses "meta").
+- "csv": optional, mapping, for CSV:
+  - "delimiter": string of exactly one character. Default a comma. Standard CSV double-quote quoting, with doubled quotes inside quoted cells, must be supported. The first row is the header row; fully empty rows are ignored.
+  - "list_delimiter": string of at least one character. Default a vertical bar "|". Splits cells of "list" columns; parts are trimmed and empty parts dropped.
+  - "fields": mapping from column name to one of "string", "number", "integer", "boolean", "list", "json". Columns not listed are strings. An empty cell is null (unrated) for every type. "number" and "integer" give null if the text is not a number. "boolean" accepts true, yes, 1 or y as true and false, no, 0 or n as false (any letter case); anything else is null. "json" parses the cell as structured JSON text.
+
+### A.4 "header"
+
+- "meta": optional template string (A.14). Placeholders are the fields of the dataset metadata plus "total" (number of records). The AI-model configuration uses "snapshotDate", "enrichDate", "total" and "arenaPublishDate".
+
+### A.5 "counts"
+
+- "show": boolean, default true. When false, options show no counts.
+- "option": template, default "({count}{anecdotal_part})". Placeholders: "count" (matches for that option) and "anecdotal_part" (the rendered "anecdotal_part" template, or empty when there are no anecdotal-only matches).
+- "anecdotal_part": template, default " · {anecdotal}{marker}". Placeholders: "anecdotal" (how many of the matches qualify only through anecdotal values) and "marker" (the facet's anecdotal marker).
+- "results": template, default "{n} of {total} match". Placeholders: "n" (matching items) and "total" (all items).
+
+### A.6 "labels"
+
+- "option": template, default "{facet}: {value}". Placeholders: "facet" (the facet "label") and "value" (the option text).
+- "unrated": string, default "unrated". Text for missing values in options, table cells and the "yesno" transform.
+- "range": template for closed numeric ranges, default "{lo}–{hi}{unit}".
+- "range_open": template for open-ended ranges, default "{lo}+{unit}".
+- "path_separator": string, default " › ". Joins taxonomy labels into a path label.
+
+### A.7 "types" (exclusive type selector)
+
+- "field": required, string (dotted path). The record field holding the type; it may be one value or a list, and an item appears under every type it lists.
+- "label": optional string, default "Type". Accessible name of the selector.
+- "all": optional mapping with required "id" (string) and required "label" (string). The "show everything" option; default id "all", label "All".
+- "options": required, list of at least one mapping, each with required "id" (string) and required "label" (string).
+
+A facet's "types" may only name ids declared in "options"; an unknown id is an error. Under the "all" option only facets without a "types" key are shown.
+
+### A.8 "popups"
+
+- "facet": mapping with "dwell_ms" (integer, at least 0, default 300) and "grace_ms" (integer, at least 0, default 200).
+- "row": mapping with "dwell_ms" (integer, at least 0, default 300), "grace_ms" (integer, at least 0, default 200) and "highlight" (boolean, default true; highlights the row whose popup is open).
+
+"dwell_ms" is how long the cursor must rest on a new target before the popup switches to it; "grace_ms" is how long the popup stays after the cursor leaves it.
+
+### A.9 Trees (taxonomies)
+
+A tree, wherever it appears (under "taxonomies" or as a facet "tree"), takes exactly one of these forms:
+
+- An inline list of nodes. Each node is a mapping with required "key" (string, number or boolean; treated as text), optional "label" (string; defaults to the key) and optional "children" (a list of nodes). Children form the next refinement level; leaves have none. No other node keys are allowed.
+- A mapping with only "ref" (string): the name of a tree under "taxonomies". An unknown name is an error.
+- A mapping with only "path" (string): a separate file, relative to the configuration, containing a node list. It is read as JSON if its name ends with the extension json, otherwise as YAML.
+- A mapping with "generate" plus its options (no other keys):
+  - "generate": one of "distinct", "top_n", "prefix_groups".
+  - "distinct": one leaf per distinct value found in the field, ordered by frequency (most frequent first, ties alphabetical).
+  - "top_n": the "n" most frequent values as leaves (integer, at least 1, default 15), and if more values exist, one extra node labelled "other_label" (string, default "Other") whose children are the remaining values in alphabetical order.
+  - "prefix_groups": values are expected to look like a prefix, a separator, then a name (for example "agg:OpenRouter"). "separator" (string, default ":"); "key_prefix" (string, default empty) is prepended to each group's key; "groups" (required and non-empty for this form) is a list of mappings each with required "prefix" (string) and required "label" (string). Each group becomes a top-level node whose children are the values starting with its prefix and separator, ordered by frequency, labelled with the part after the separator. Groups with no values are dropped.
+
+### A.10 Facets (each item of "facets")
+
+Required keys: "id", "label", "kind", "field". No keys other than those listed here are allowed.
+
+- "id": string matching a letter or underscore followed by letters, digits or underscores. Must be unique (a duplicate is an error). Also identifies the facet's table column and sort column.
+- "label": string. Facet name in the panel and the "facet" placeholder in option labels.
+- "kind": one of "numeric" (range refinement), "categorical" (tree refinement), "boolean" (Yes/No).
+- "field": string (dotted path) into each record. If no record has this field, a non-blocking warning is shown.
+- "multi": boolean, default false. The field holds a list of values; with two or more checked siblings the All/Any frame appears ("All of these" by default).
+- "types": list of type ids this facet applies to. Default: all types.
+- "order": number. Sort key for facet order; default is the position in the list.
+- "unrated": boolean, default true. Offer an "unrated" option for missing values.
+- "parse": numeric only; one of "number" (default) or "yearmonth". "yearmonth" reads text such as 2025-03 or 2025-03-14 as a fractional year (year plus month minus one, divided by twelve).
+- "format": numeric only; a format mapping (A.11) used in range labels.
+- "unit": string, inserted through the "unit" placeholder in range labels.
+- "ranges": numeric facets require it (an error otherwise; not allowed on other kinds). List of at least one pair; each pair is a list of exactly two items, each a number or null. Ranges include the lower bound and exclude the upper bound. The lower bound may not be null; a null upper bound means open-ended; otherwise the upper bound must be greater than the lower.
+- "split": numeric only (not allowed on other kinds); mapping of child-level rules:
+  - "method": only the literal "quantile" is allowed (meaning sub-ranges aim for roughly equal item counts; this is the only behaviour).
+  - "nice": boolean, default true. Round boundaries to the nearest of 1, 2, 2.5, 5 or 10 times a power of ten.
+  - "step": number, or a string fraction written as two numbers separated by a slash (for example "1/12" for whole months). Rounds boundaries to multiples of the step and takes precedence over "nice".
+  - "min_count": integer, at least 1, default 6. Do not refine when fewer items match.
+  - "max_children": integer from 2 to 10, default 4. With fewer than twice "min_count" matches, one fewer is used.
+- "range_labels": numeric only; mapping of templates "closed", "open" and "from_zero" (used when the lower bound is 0). Placeholders: "lo", "hi", "hi_step" (the upper bound minus the step, giving an inclusive end such as 2024-12) and "unit". When absent, "labels" "range" and "range_open" apply.
+- "tree": categorical facets require it (an error otherwise). A tree (A.9).
+- "value_labels": categorical only; "path" (default; the label is the full path, for example "Job: Coding › Refactoring") or "leaf" (only the node's own label, for example "Available from: OpenRouter").
+- "bool_labels": boolean facets; mapping with "yes" (string, default "Yes") and "no" (string, default "No"). Option keys are "yes" and "no". A field value of true, or text true, yes or 1, counts as yes; any other present value counts as no; missing counts as unrated.
+- "anecdotal": categorical; mapping with required "exclude_field" (string, dotted path to a list of this facet's values that are supported only by anecdotal evidence), optional "marker" (string, default "*") and optional "row_flag_title" (string, default "matches only via anecdotal values"; the tooltip of the row marker). Anecdotal values still count as matches, are counted separately in option counts, flag matching rows with the marker in any column that has "row_flag_marker", and are marked by the "tags" transform and the "evidence" section.
+- "column": either the literal false (no table column for this facet) or a mapping:
+  - "label": string, the column header (defaults to the facet label).
+  - "align": one of "left", "center", "right". Default right for numeric facets.
+  - "format": a format mapping (A.11) for the cell. Default precision with 4 digits.
+  - "display_field": string (dotted path). Show this raw field in the cell (for example a date text) while sorting by the facet's numeric value.
+  - "estimated": mapping with required "flag_field" (string), required "template" (template whose placeholder "value" is the formatted value, for example "~{value}B (est.)") and optional "title_field" (string, a field shown as the cell tooltip). Used when the flag field is true.
+
+### A.11 Format mapping
+
+Keys: "kind" (required), "digits" (integer 0 to 20), "prefix" (string), "suffix" (string). No other keys. "kind" is one of:
+
+- "plain": the value as text.
+- "si": 1,000,000 and above as millions with three significant digits and an "M" (1.05M); 1,000 and above as rounded thousands with a "k" (128k); else plain.
+- "money": a dollar sign, then for values below 1 two significant digits (0.15), otherwise two decimals with trailing zeros dropped (2.5, 3).
+- "precision": the number of significant "digits" (default 4), trailing zeros dropped.
+- "fixed": exactly "digits" decimals (default 1).
+- "yearmonth": a fractional year shown as year-month (2025-03).
+
+"prefix" and "suffix" are added around the result.
+
+### A.12 "table"
+
+- "columns": required, list of at least one column. Each column is one of two forms:
+  - A field column with required "field" (string, dotted path) and required "label" (string), and optional "align" ("left", "center", "right"; default right if a "format" is given, else left), "class" (string, a styling class name such as "c"), "sortable" (boolean, default true), "row_flag_marker" (boolean; append the anecdotal marker to rows that match only through anecdotal values), "format" (format mapping applied to numeric values) and "template" (template over the record, replacing the plain field value). List values are shown joined with a comma and space.
+  - A facet group with required "facets", one of "numeric" (one column per visible numeric facet) or "all" (one column per visible facet), and optional "sortable" (boolean). Facets whose "column" is false are skipped.
+- "default_sort": null (no initial sort) or a mapping with required "col" (string: a field column's field or a facet id) and optional "dir" ("asc" or "desc", default "asc").
+- "unrated_last": boolean, default true. Missing values sort last in both directions.
+
+Headers always use their column's alignment; on right-aligned headers the sort arrow sits to the left of the label.
+
+### A.13 "row_popup"
+
+- "sections": list of sections, rendered in order. Each section has required "type", one of "links", "fields", "evidence", "map", "text", and may use only these keys: "type", "title", "field", "class", "collapsible", "count_in_title", "empty", "url", "text", "note", "facet", "link_text", "quote", "quote_max", "rows".
+- Shared keys: "title" (string heading), "field" (string, dotted path to the data shown), "class" (string styling class, such as "find"), "collapsible" (boolean; renders an inline expandable section inside the locked popup, so clicking inside never retargets the popup), "count_in_title" (boolean; appends the number of entries in parentheses to a collapsible title).
+- "links": "field" holds either a list of mappings or a single web address string (then the host name is shown as the link text). In each mapping, "url" names the key holding the address (default "url"), "text" names the key holding the link text (default "label"), "note" names the key holding a small note shown after the link (default "note"). Only addresses starting with http or https are kept. Links open in a new tab safely. "title" defaults to "Links"; "empty" (string) is shown when there are no links, default "No links".
+- "fields": "rows" is a list of mappings, each with required "label" (string) and either "value" (template over the record) or "entries" (mapping with required "field" (string, dotted path to a mapping), required "item" (template applied to each key and value of that mapping, where "$key" and "$value" are the current key and value and a path segment starting with a dollar sign is replaced by that value, so "benchPct.$key" looks up the percentile for the current key), optional "join" (string between items, default a comma and space) and optional "empty" (string when the mapping is empty, default the "unrated" label)). No other row keys are allowed. Each row shows the label in bold followed by the value.
+- "evidence": "field" holds a mapping from tag to a list of evidence entries; "facet" (string) names the facet whose labels and anecdotal marker are used (an unknown facet id is an error); in each entry "url" names the address key (default "url"), "link_text" names the key holding the link text (default "source"), "quote" names the quote key (default "quote"); "quote_max" (integer, at least 1, default 140) truncates quotes. "title" is shown above the entries; the section is omitted when there is no evidence.
+- "map": shows each key and value of the mapping in "field" as "key: value" lines; "title" defaults to the field name; omitted when empty.
+- "text": shows one text field; omitted when missing.
+
+### A.14 Templates
+
+- A template is literal text with placeholders. A placeholder is written as an expression in curly braces. Everything outside braces is literal text. All output is escaped so it is shown as text, never interpreted as markup.
+- The expression starts with a dotted path. Several paths separated by commas mean "the first one that is not missing" (for example "orid,hf,id"). Missing means null, absent, empty text or an empty list.
+- Transforms follow, each introduced by a vertical bar "|". A transform's argument, if any, follows a colon after its name (for example "default:unrated" or "join:; "). Transforms apply left to right. An unknown transform name is an error.
+- Transforms, exact names:
+  - "join": joins a list with the argument (default a comma and a space).
+  - "default": when the value is missing, outputs the argument (default empty).
+  - "limit": keeps the first n list items (argument n).
+  - "yesno": maps true, false and missing to three comma-separated words given as the argument (default "yes", "no" and the "unrated" label), for example "yesno:yes,no,unknown".
+  - "if": outputs the argument when the value is truthy, else nothing (for example "if: (AA-estimated)").
+  - "fmt": formats a number; argument is a format kind (A.11) optionally followed by a colon and digits (default digits 4), for example "fmt:fixed:1".
+  - "tags": argument is a facet id; maps value keys to that facet's labels and appends the facet's anecdotal marker to anecdotal-only values.
+- A list result that remains after the transforms is shown joined with a comma and a space.
+- Placeholder names available in each place:
+  - "header" "meta": dataset metadata fields plus "total".
+  - "counts" "option": "count", "anecdotal_part". "counts" "anecdotal_part": "anecdotal", "marker". "counts" "results": "n", "total".
+  - "labels" "option": "facet", "value". Range templates ("labels" "range", "range_open", and facet "range_labels" "closed", "open", "from_zero"): "lo", "hi", "hi_step", "unit".
+  - Column "estimated" "template": "value".
+  - Field column "template", fields row "value": any record field path.
+  - Fields row "entries" "item": any record field path plus "$key" and "$value".
+
+### A.15 Values used by the reference configurations
+
+These literal values appear in the shipped configurations and must work: facet kinds "numeric", "categorical", "boolean"; "parse" "yearmonth"; format kinds "money", "si", "precision", "fixed", "plain", "yearmonth"; "split" with "method" "quantile", "nice" true, "min_count", "max_children" and "step" given both as "1/12" and as 1; tree forms inline, "ref" (taxonomies "jobs" and "license"), "path" (a separate genre file) and "generate" with "top_n", "distinct" and "prefix_groups" (with "separator", "key_prefix" and "groups"); "value_labels" "leaf"; "bool_labels"; "anecdotal" with "exclude_field", "marker" and "row_flag_title"; "column" with "label", "format", "display_field" and "estimated" ("flag_field", "template", "title_field"); table column forms including "facets" "numeric", "class", "sortable" false and "row_flag_marker"; "default_sort" both null and a mapping with "col" and "dir" "asc"; "unrated_last"; section types "links", "fields", "evidence", "map", "text"; CSV field types "integer", "number", "list", "boolean" (declared in the book example for its columns "year", "pages", "rating", "price", "formats", "tags" and "in_print"; column names under "fields" are free, dataset-defined names, not reserved words); YAML anchors and aliases.

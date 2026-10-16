@@ -36,7 +36,7 @@ Follow SPEC.md for the details of each of these:
 
 ## 4. Acceptance criteria
 
-The acceptance criteria are listed at the end of SPEC.md. In short: every behaviour described there is observable in the running app, both datasets load from their configurations alone, the single-file version opens from disk with no server, nothing in the data is fabricated, and the automated tests pass.
+The configuration contract in Appendix A of SPEC.md is normative and must be followed exactly: exact key names, literal values, defaults and error rules, so that both shipped reference configurations load unchanged. The acceptance criteria are listed in SPEC.md section 16. In short: every behaviour described there is observable in the running app, both datasets load from their configurations alone, the single-file version opens from disk with no server, nothing in the data is fabricated, and the automated tests pass.
 
 ## 5. Working style with the user
 
