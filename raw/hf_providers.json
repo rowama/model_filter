@@ -1,0 +1,1056 @@
+{
+"source": "huggingface.co/api/models/{id}?expand[]=inferenceProviderMapping (status=live), fetched 2026-10-15",
+"models": {
+"Aratako/MioTTS-2.6B": [],
+"Alibaba-NLP/gte-large-en-v1.5": [],
+"BAAI/bge-m3": [
+"hf-inference"
+],
+"Alibaba-NLP/gte-multilingual-base": [],
+"BAAI/bge-small-en-v1.5": [
+"hf-inference"
+],
+"BAAI/bge-large-zh-v1.5": [
+"hf-inference"
+],
+"BAAI/bge-reranker-large": [
+"hf-inference"
+],
+"BAAI/bge-large-en-v1.5": [
+"deepinfra",
+"hf-inference"
+],
+"CMSManhattan/JiRackUltra_1b": [],
+"BAAI/bge-small-zh-v1.5": [
+"hf-inference"
+],
+"AtomicChat/Qwen-Image-2.1-Turbo-Uncensored-GGUF": [],
+"CohereLabs/North-Mini-Code-1.0": [],
+"DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF": [],
+"DavidAU/Qwen3.5-9B-The-Defiant-Fable-Uncensored-Heretic-NEO-IMATRIX-MAX-MTP-GGUF": [],
+"ByteDance-Seed/UI-TARS-1.5-7B": [
+"featherless-ai"
+],
+"EleutherAI/pythia-160m": [],
+"FunAudioLLM/Fun-CosyVoice3-0.5B-2512": [],
+"HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive": [],
+"Harveenchadha/vakyansh-wav2vec2-tamil-tam-250": [],
+"Gryphe/MythoMax-L2-13b": [
+"featherless-ai"
+],
+"HuggingFaceTB/SmolVLM2-500M-Video-Instruct": [],
+"HuggingFaceTB/SmolLM2-135M": [],
+"HuggingFaceTB/SmolLM2-135M-Instruct": [],
+"John6666/nova-furry-xl-il-v120-sdxl": [],
+"JonathanColetti/Qwen3.8-27B-Uncensored-GGUF": [],
+"ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-GGUF": [],
+"KBLab/wav2vec2-large-voxrex-swedish": [],
+"Laxhar/noobai-XL-1.1": [],
+"LiquidAI/LFM2.5-2.6B": [],
+"Lykon/DreamShaper": [
+"fal-ai"
+],
+"Lykon/dreamshaper-7": [],
+"LyliaEngine/Pony_Diffusion_V6_XL": [],
+"MahmoudAshraf/mms-300m-1130-forced-aligner": [],
+"MiniMaxAI/MiniMax-M2": [
+"featherless-ai"
+],
+"LiquidAI/LFM2.5-24B-A2B": [],
+"MiniMaxAI/MiniMax-M2.1": [
+"featherless-ai"
+],
+"MiniMaxAI/MiniMax-M2.5": [
+"featherless-ai",
+"novita"
+],
+"MiniMaxAI/MiniMax-Text-01": [],
+"Misha24-10/F5-TTS_RUSSIAN": [],
+"BAAI/bge-base-en": [
+"hf-inference"
+],
+"NousResearch/Hermes-3-Llama-3.1-405B": [],
+"BAAI/bge-base-en-v1.5": [
+"deepinfra",
+"hf-inference"
+],
+"BAAI/bge-base-zh-v1.5": [
+"hf-inference"
+],
+"NousResearch/Hermes-4-405B": [],
+"Noctaluna/Noct-Q-Uncensored-Qwen-Image-2.1": [],
+"Octen/Octen-Embedding-8B": [],
+"MiniMaxAI/MiniMax-M2.7": [
+"deepinfra",
+"featherless-ai",
+"novita"
+],
+"NousResearch/Hermes-3-Llama-3.1-70B": [
+"deepinfra",
+"featherless-ai"
+],
+"OpenMOSS-Team/MOSS-TTS-Local-Transformer-v1.5": [],
+"CompVis/stable-diffusion-v1-4": [],
+"OpenMOSS-Team/MOSS-TTS-v1.5": [],
+"PrunaAI/Pruna-Qwen-Image-2.1": [],
+"OrdalieTech/Solon-embeddings-large-0.1": [
+"hf-inference"
+],
+"Qdrant/all-MiniLM-L6-v2-onnx": [],
+"Qdrant/bge-small-en-v1.5-onnx-Q": [],
+"Qwen/Qwen-Image": [
+"fal-ai",
+"replicate",
+"wavespeed"
+],
+"HauhauCS/Qwen3.8-27B-Uncensored-HauhauCS-Aggressive-MTP-GGUF": [],
+"OpenMOSS-Team/MOSS-TTS-Nano-100M": [],
+"Qwen/Qwen-Image-2.1": [],
+"Qwen/Qwen2-VL-7B-Instruct-AWQ": [],
+"Qwen/Qwen2.5-0.5B-Instruct": [
+"featherless-ai"
+],
+"ISTA-DASLab/Qwen3.8-27B-GSQ-RCO-GGUF": [],
+"Qwen/Qwen2.5-32B-Instruct": [
+"featherless-ai"
+],
+"Qwen/Qwen2.5-72B-Instruct": [
+"deepinfra",
+"featherless-ai"
+],
+"Qwen/Qwen2.5-3B-Instruct": [
+"featherless-ai"
+],
+"Khalsuu/filipino-wav2vec2-l-xls-r-300m-official": [],
+"Qwen/Qwen2.5-14B-Instruct-AWQ": [],
+"Qwen/Qwen2.5-7B-Instruct-AWQ": [],
+"Qwen/Qwen2.5-Coder-14B-Instruct": [
+"featherless-ai"
+],
+"Qdrant/all_miniLM_L6_v2_with_attentions": [],
+"Qwen/Qwen2.5-Coder-32B-Instruct": [
+"featherless-ai",
+"nscale"
+],
+"Qwen/Qwen2.5-Coder-7B-Instruct": [
+"featherless-ai",
+"nscale"
+],
+"Qwen/Qwen2.5-VL-3B-Instruct": [
+"featherless-ai"
+],
+"Qwen/Qwen2.5-VL-7B-Instruct-AWQ": [],
+"Qwen/Qwen2.5-VL-7B-Instruct": [
+"featherless-ai"
+],
+"Qwen/Qwen2.5-VL-72B-Instruct": [
+"featherless-ai",
+"ovhcloud"
+],
+"Qwen/Qwen2.5-1.5B-Instruct": [
+"featherless-ai"
+],
+"Qwen/Qwen3-14B": [
+"deepinfra",
+"featherless-ai",
+"nscale"
+],
+"Qwen/Qwen3-0.6B": [
+"featherless-ai"
+],
+"Qwen/Qwen3-14B-AWQ": [],
+"Qwen/Qwen3-1.7B": [
+"featherless-ai"
+],
+"Qwen/Qwen3-30B-A3B": [
+"deepinfra"
+],
+"Qwen/Qwen3-235B-A22B-Thinking-2507": [
+"deepinfra",
+"featherless-ai"
+],
+"Qwen/Qwen3-235B-A22B-Instruct-2507": [
+"deepinfra",
+"nscale",
+"scaleway"
+],
+"Qwen/Qwen3-30B-A3B-Instruct-2507": [
+"featherless-ai"
+],
+"NeuML/pubmedbert-base-embeddings": [
+"hf-inference"
+],
+"Qwen/Qwen3-32B": [
+"deepinfra",
+"featherless-ai",
+"nscale"
+],
+"Qwen/Qwen3-8B": [
+"featherless-ai",
+"nscale"
+],
+"Qwen/Qwen3-4B": [
+"featherless-ai"
+],
+"Qwen/Qwen3-ASR-1.7B": [
+"deepinfra"
+],
+"Qwen/Qwen3-Coder-30B-A3B-Instruct": [
+"featherless-ai",
+"scaleway"
+],
+"Qdrant/bm25": [],
+"Qwen/Qwen3-4B-Instruct-2507": [
+"featherless-ai",
+"nscale"
+],
+"Qwen/Qwen3-Embedding-4B": [
+"deepinfra"
+],
+"Qwen/Qwen3-Embedding-0.6B": [
+"deepinfra"
+],
+"Qwen/Qwen3-Embedding-8B": [
+"deepinfra",
+"scaleway"
+],
+"Qwen/Qwen3-Next-80B-A3B-Instruct": [
+"deepinfra",
+"featherless-ai"
+],
+"Qwen/Qwen3-Next-80B-A3B-Thinking": [],
+"Qwen/Qwen3-Coder-Next": [
+"featherless-ai"
+],
+"Qwen/Qwen3-TTS-12Hz-0.6B-Base": [],
+"Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice": [],
+"Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign": [],
+"Qwen/Qwen3-VL-2B-Instruct": [
+"featherless-ai"
+],
+"Qwen/Qwen3-VL-235B-A22B-Instruct": [
+"deepinfra"
+],
+"Qwen/Qwen3-VL-Embedding-2B": [
+"hf-inference"
+],
+"Qwen/Qwen3-VL-30B-A3B-Thinking": [],
+"Qwen/Qwen3-VL-Embedding-8B": [],
+"Qwen/Qwen3-VL-4B-Instruct": [
+"featherless-ai"
+],
+"Qwen/Qwen3-VL-8B-Instruct": [
+"featherless-ai"
+],
+"Qwen/Qwen3.5-122B-A10B": [
+"deepinfra",
+"novita"
+],
+"Qwen/Qwen3.5-27B": [
+"deepinfra",
+"featherless-ai",
+"novita"
+],
+"Qwen/Qwen2.5-7B-Instruct": [
+"featherless-ai"
+],
+"Qwen/Qwen3-VL-8B-Instruct-FP8": [],
+"Qwen/Qwen3.5-0.8B": [],
+"Qwen/Qwen3.5-35B-A3B": [
+"deepinfra",
+"novita"
+],
+"Qwen/Qwen3.5-2B": [
+"featherless-ai"
+],
+"Qwen/Qwen3.5-4B": [
+"featherless-ai"
+],
+"Qwen/Qwen3.5-397B-A17B": [
+"deepinfra",
+"featherless-ai",
+"novita",
+"ovhcloud",
+"scaleway"
+],
+"Qwen/Qwen3.5-35B-A3B-FP8": [],
+"Qwen/Qwen3.6-27B-FP8": [],
+"Qwen/Qwen3.6-35B-A3B": [
+"featherless-ai",
+"scaleway"
+],
+"Qwen/Qwen3.8-27B": [
+"cerebras",
+"deepinfra",
+"featherless-ai",
+"novita",
+"ovhcloud"
+],
+"Qwen/Qwen3.5-9B": [
+"deepinfra",
+"featherless-ai",
+"ovhcloud",
+"together"
+],
+"Qwen/Qwen3.8-2.4T-A95B": [
+"deepinfra",
+"fireworks-ai",
+"novita",
+"together"
+],
+"Qwen/Qwen3.8-27B-FP8": [],
+"Qwen/Qwen3.6-35B-A3B-FP8": [],
+"Qwen/Qwen3.8-Flash-Next": [
+"featherless-ai"
+],
+"RadixArk/Kimi-K3-DSpark": [],
+"RunDiffusion/Juggernaut-XL-v9": [],
+"ResembleAI/chatterbox": [
+"deepinfra",
+"fal-ai",
+"replicate"
+],
+"SG161222/RealVisXL_V5.0": [],
+"SG161222/Realistic_Vision_V5.1_noVAE": [],
+"Sao10K/L3-8B-Lunaris-v1": [
+"featherless-ai"
+],
+"Qwen/Qwen3-8B-AWQ": [],
+"Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice": [],
+"Qwen/Qwen3-Coder-480B-A35B-Instruct": [
+"featherless-ai"
+],
+"SWivid/F5-TTS": [],
+"SebastianBodza/Kartoffel_Orpheus-3B_german_natural-v0.1": [],
+"Sao10K/L3.3-70B-Euryale-v2.3": [
+"featherless-ai"
+],
+"SWivid/E2-TTS": [],
+"Sao10K/L3.1-70B-Euryale-v2.2": [],
+"SimianLuo/LCM_Dreamshaper_v7": [],
+"Systran/faster-whisper-base": [],
+"Systran/faster-whisper-medium": [],
+"Snowflake/snowflake-arctic-embed-l": [
+"hf-inference"
+],
+"Systran/faster-whisper-large-v3": [],
+"Snowflake/snowflake-arctic-embed-l-v2.0": [
+"hf-inference"
+],
+"Qwen/Qwen3-VL-30B-A3B-Instruct": [
+"deepinfra",
+"featherless-ai",
+"novita"
+],
+"Systran/faster-whisper-small.en": [],
+"Systran/faster-whisper-small": [],
+"Systran/faster-whisper-tiny": [],
+"Tencent-Hunyuan/HunyuanDiT-v1.1-Diffusers-Distilled": [],
+"TheDrummer/Skyfall-36B-v2": [],
+"Serveurperso/Qwen3-TTS-GGUF": [],
+"Viggle/Qwen-Image-2.1-viggle-turbo": [],
+"Undi95/ReMM-SLERP-L2-13B": [],
+"WalkingCat/Soprano-1.1-80M-GGUF": [],
+"Tongyi-MAI/Z-Image-Turbo": [
+"fal-ai",
+"replicate",
+"wavespeed"
+],
+"Xenova/bge-base-en-v1.5": [],
+"TheDrummer/UnslopNemo-12B-v4.1": [],
+"Xenova/multilingual-e5-small": [],
+"Xenova/whisper-tiny.en": [],
+"Xenova/whisper-tiny": [],
+"WhereIsAI/UAE-Large-V1": [
+"hf-inference"
+],
+"Qwen/Qwen3.6-27B": [
+"deepinfra",
+"featherless-ai",
+"ovhcloud"
+],
+"XiaomiMiMo/MiMo-V2.5-Pro": [
+"deepinfra",
+"novita"
+],
+"YituTech/conv-bert-base": [
+"hf-inference"
+],
+"XiaomiMiMo/MiMo-V2.6-Pro-RL": [
+"novita"
+],
+"XiaomiMiMo/MiMo-V2.5": [
+"deepinfra",
+"featherless-ai",
+"novita"
+],
+"ai-forever/FRIDA": [],
+"abenzerps/Qwen-Image-2.1-Uncensored-Quantized": [],
+"ai-sage/Giga-Embeddings-instruct": [],
+"allenai/specter2_base": [
+"hf-inference"
+],
+"Xenova/bge-small-en-v1.5": [],
+"Xenova/all-MiniLM-L6-v2": [],
+"airesearch/wav2vec2-large-xlsr-53-th": [],
+"RekaAI/reka-edge-2603": [],
+"RekaAI/reka-flash-3": [],
+"anthracite-org/magnum-v4-72b": [
+"featherless-ai"
+],
+"arcee-ai/Trinity-Large-Thinking": [
+"featherless-ai"
+],
+"argmaxinc/whisperkit-coreml": [],
+"anuragshas/wav2vec2-large-xlsr-53-telugu": [],
+"autotrust/JEV-27B-VL": [],
+"audio-cpp/AuK-Base-and-Flash-GGUF": [],
+"ai4bharat/indic-parler-tts": [],
+"black-forest-labs/FLUX.1-dev": [
+"fal-ai",
+"replicate",
+"wavespeed"
+],
+"audio-cpp/audio.cpp-gguf": [],
+"bosonai/higgs-tts-3-4b": [],
+"byteshape/Qwen3.8-27B-GGUF": [],
+"black-forest-labs/FLUX.1-schnell": [
+"fal-ai",
+"nscale",
+"wavespeed"
+],
+"cagliostrolab/animagine-xl-4.0": [],
+"cagliostrolab/animagine-xl-3.1": [],
+"cambridgeltl/SapBERT-from-PubMedBERT-fulltext": [
+"hf-inference"
+],
+"tencent/Hy3": [
+"deepinfra",
+"featherless-ai"
+],
+"cdiamond/Qwen3.8-27B-iMatrix-NVFP4-MTP-GGUF": [],
+"cl-nagoya/ruri-v3-310m": [],
+"canopylabs/3b-de-ft-research_release": [],
+"comodoro/wav2vec2-xls-r-300m-cs-250": [],
+"city96/FLUX.1-dev-gguf": [],
+"coqui/XTTS-v2": [],
+"datalab-to/chandra-ocr-2": [],
+"contextboxai/Kokoro-Vietnamese": [],
+"datasocietyco/bge-base-en-v1.5-course-recommender-v5": [
+"hf-inference"
+],
+"datalab-to/surya-ocr-2": [
+"featherless-ai"
+],
+"deepseek-ai/DeepSeek-R1": [
+"novita"
+],
+"deepseek-ai/DeepSeek-R1-0528": [
+"deepinfra",
+"featherless-ai",
+"novita"
+],
+"deepseek-ai/DeepSeek-V3": [
+"deepinfra"
+],
+"deepseek-ai/DeepSeek-V3.1": [
+"deepinfra",
+"featherless-ai"
+],
+"deepseek-ai/DeepSeek-OCR": [],
+"christopherthompson81/MOSS-TTS-v1.5-GGUF": [],
+"deepseek-ai/DeepSeek-V3.1-Terminus": [
+"deepinfra",
+"featherless-ai"
+],
+"deepseek-ai/DeepSeek-V3-0324": [
+"deepinfra",
+"featherless-ai"
+],
+"deepseek-ai/DeepSeek-V3.2-Exp": [],
+"deepseek-ai/DeepSeek-V3.2": [
+"deepinfra"
+],
+"deepseek-ai/DeepSeek-V4-Flash-Vision-Exp": [
+"deepinfra"
+],
+"deepseek-ai/DeepSeek-V4-Flash-0731": [
+"baseten",
+"deepinfra",
+"featherless-ai",
+"novita",
+"scaleway",
+"together"
+],
+"deepseek-ai/DeepSeek-V4-Flash": [
+"featherless-ai"
+],
+"deepseek-ai/DeepSeek-V4-Pro": [
+"deepinfra",
+"featherless-ai",
+"novita"
+],
+"deepseek-ai/DeepSeek-V4.1-Flash": [
+"baseten",
+"deepinfra",
+"featherless-ai",
+"fireworks-ai",
+"novita"
+],
+"deepseek-ai/DeepSeek-V4-Pro-0813": [
+"baseten",
+"deepinfra",
+"novita",
+"together"
+],
+"XiaomiMiMo/MiMo-V2.6-Flash-RL": [
+"novita"
+],
+"dphn/dolphin-2.9.1-yi-1.5-34b": [],
+"distilbert/distilgpt2": [],
+"facebook/mms-tts-bam": [],
+"ampixa/sanoTTS": [],
+"facebook/hf-seamless-m4t-medium": [],
+"facebook/opt-125m": [],
+"drbaph/Higgs-Audio-v3-Studio": [],
+"deepvk/USER2-base": [
+"hf-inference"
+],
+"facebook/mms-tts-eng": [],
+"facebook/w2v-bert-2.0": [],
+"gigant/romanian-wav2vec2": [],
+"google/embeddinggemma-300m": [
+"hf-inference"
+],
+"antirez/deepseek-v4-gguf": [],
+"gabor-hosu/e5-mistral-7b-instruct-bnb-4bit": [],
+"dignome/Echo-TTS": [],
+"google/gemma-2-27b-it": [
+"featherless-ai"
+],
+"ggml-org/Qwen3.8-27B-GGUF": [],
+"facebook/wav2vec2-base-960h": [],
+"google/gemma-3-1b-it": [
+"featherless-ai"
+],
+"google/gemma-3-12b-it": [
+"deepinfra",
+"featherless-ai"
+],
+"google/gemma-3-27b-it": [
+"deepinfra",
+"featherless-ai"
+],
+"google/gemma-4-31B-it": [
+"deepinfra",
+"featherless-ai",
+"novita"
+],
+"google/gemma-3-4b-it": [
+"deepinfra",
+"featherless-ai"
+],
+"google/gemma-4-26B-A4B-it": [
+"deepinfra",
+"featherless-ai",
+"novita",
+"scaleway"
+],
+"h94/IP-Adapter-FaceID": [],
+"handy-computer/cohere-transcribe-03-2026-gguf": [],
+"huihui-ai/Huihui-Qwen3.8-27B-abliterated-GGUF": [],
+"ibm-granite/granite-4.0-h-micro": [],
+"handy-computer/parakeet-unified-en-0.6b-gguf": [],
+"ibm-granite/granite-4.2-8b": [
+"deepinfra"
+],
+"ibm-granite/granite-embedding-small-english-r2": [],
+"inclusionAI/Ling-3.0-flash": [
+"deepinfra",
+"novita"
+],
+"indobenchmark/indobert-base-p1": [],
+"inclusionAI/Ling-3.0-flash-VL": [
+"deepinfra",
+"novita"
+],
+"handy-computer/nemotron-3.5-asr-streaming-0.6b-gguf": [],
+"hexgrad/Kokoro-82M": [
+"deepinfra",
+"fal-ai"
+],
+"indonesian-nlp/wav2vec2-indonesian-javanese-sundanese": [],
+"imvladikon/wav2vec2-xls-r-300m-hebrew": [],
+"intfloat/e5-base": [
+"hf-inference"
+],
+"intfloat/e5-base-v2": [
+"hf-inference"
+],
+"intfloat/e5-large-v2": [
+"hf-inference"
+],
+"intfloat/e5-small-v2": [
+"hf-inference"
+],
+"intfloat/multilingual-e5-base": [
+"hf-inference"
+],
+"jhgan/ko-sroberta-multitask": [
+"hf-inference"
+],
+"intfloat/multilingual-e5-large-instruct": [
+"deepinfra",
+"hf-inference"
+],
+"jinaai/jina-embeddings-v2-small-en": [],
+"jinaai/jina-embeddings-v5-omni-small": [],
+"jonatasgrosman/wav2vec2-large-xlsr-53-chinese-zh-cn": [],
+"jonatasgrosman/wav2vec2-large-xlsr-53-finnish": [],
+"intfloat/multilingual-e5-small": [
+"hf-inference"
+],
+"jonatasgrosman/wav2vec2-large-xlsr-53-dutch": [],
+"jonatasgrosman/wav2vec2-large-xlsr-53-greek": [],
+"jonatasgrosman/wav2vec2-large-xlsr-53-japanese": [],
+"intfloat/multilingual-e5-large": [
+"deepinfra",
+"hf-inference"
+],
+"jonatasgrosman/wav2vec2-large-xlsr-53-arabic": [],
+"jonatasgrosman/wav2vec2-large-xlsr-53-persian": [],
+"jinaai/jina-embeddings-v2-base-en": [],
+"jonatasgrosman/wav2vec2-large-xlsr-53-polish": [],
+"jonatasgrosman/wav2vec2-large-xlsr-53-hungarian": [],
+"jinaai/jina-embeddings-v3": [],
+"jonatasgrosman/wav2vec2-large-xlsr-53-portuguese": [],
+"k2-fsa/OmniVoice": [],
+"kenpath/svara-tts-v1": [],
+"jonatasgrosman/wav2vec2-large-xlsr-53-russian": [],
+"kyutai/tts-1.6b-en_fr": [],
+"laion/larger_clap_general": [],
+"kingabzpro/wav2vec2-large-xls-r-300m-Urdu": [],
+"laion/clap-htsat-unfused": [],
+"kresnik/wav2vec2-large-xlsr-korean": [],
+"leejet/Qwen-Image-2.1-GGUF": [],
+"lightx2v/Qwen-Image-Lightning": [
+"fal-ai",
+"wavespeed"
+],
+"lightx2v/Qwen-Image-2512-Lightning": [
+"wavespeed"
+],
+"lopi999/Wan2.2-I2V_General-NSFW-LoRA": [
+"wavespeed"
+],
+"lmstudio-community/Qwen3.8-27B-MLX-5bit": [],
+"lmstudio-community/Qwen3.8-27B-MLX-4bit": [],
+"lmstudio-community/Qwen3.8-27B-MLX-6bit": [],
+"lmstudio-community/Qwen3.8-27B-MLX-8bit": [],
+"meituan-longcat/LongCat-2.0": [],
+"meta-llama/Llama-3.1-8B-Instruct": [
+"deepinfra",
+"featherless-ai",
+"novita",
+"nscale"
+],
+"mesolitica/wav2vec2-xls-r-300m-mixed": [],
+"meta-llama/Llama-4-Scout-17B-16E-Instruct": [
+"deepinfra",
+"novita",
+"nscale"
+],
+"meta-llama/Llama-4-Maverick-17B-128E-Instruct": [],
+"meta-llama/Llama-3.2-3B-Instruct": [
+"featherless-ai"
+],
+"meta-llama/Llama-3.2-1B-Instruct": [
+"featherless-ai"
+],
+"microsoft/Florence-2-base": [],
+"microsoft/VibeVoice-1.5B": [],
+"meta-models/Muse-Glimmer-30B": [
+"deepinfra",
+"featherless-ai",
+"together"
+],
+"meta-llama/Llama-Guard-4-12B": [
+"deepinfra"
+],
+"microsoft/VibeVoice-Realtime-0.5B": [],
+"microsoft/harrier-oss-v1-0.6b": [
+"hf-inference"
+],
+"microsoft/wavlm-base-plus": [],
+"meta-llama/Llama-3.3-70B-Instruct": [
+"featherless-ai",
+"novita",
+"ovhcloud",
+"scaleway",
+"together"
+],
+"microsoft/phi-4": [
+"deepinfra",
+"featherless-ai"
+],
+"mistralai/Devstral-2-123B-Instruct-2512": [],
+"mistralai/Ministral-3-14B-Instruct-2512": [],
+"mistralai/Ministral-3-8B-Instruct-2512": [],
+"mistralai/Mistral-Nemo-Instruct-2407": [],
+"mistralai/Mistral-Small-24B-Instruct-2501": [],
+"mistralai/Mistral-7B-Instruct-v0.2": [],
+"mistralai/Ministral-3-3B-Instruct-2512": [],
+"mistralai/Mistral-Small-3.2-24B-Instruct-2506": [],
+"mistralai/Mixtral-8x22B-Instruct-v0.1": [
+"nscale"
+],
+"mixedbread-ai/deepset-mxbai-embed-de-large-v1": [
+"hf-inference"
+],
+"mistralai/Mistral-Small-4-119B-2603": [],
+"mistralai/Voxtral-Mini-4B-Realtime-2602": [],
+"mistralai/Mistral-Small-3.1-24B-Instruct-2503": [
+"featherless-ai"
+],
+"mistralai/Voxtral-Small-24B-2507": [],
+"mixedbread-ai/mxbai-embed-large-v1": [
+"hf-inference"
+],
+"mlx-community/Kokoro-82M-bf16": [],
+"mlx-community/chatterbox-turbo-4bit": [],
+"moonshotai/Kimi-K2-Thinking": [
+"featherless-ai"
+],
+"mlx-community/parakeet-tdt-0.6b-v3": [],
+"moonshotai/Kimi-K2-Instruct-0905": [
+"novita"
+],
+"moonshotai/Kimi-K2-Instruct": [
+"featherless-ai",
+"novita"
+],
+"moonshotai/Kimi-K2.5": [
+"deepinfra",
+"featherless-ai",
+"novita"
+],
+"moonshotai/Kimi-K3": [
+"baseten",
+"deepinfra",
+"featherless-ai",
+"fireworks-ai",
+"together"
+],
+"moonshotai/Kimi-K2.7-Code": [
+"deepinfra",
+"featherless-ai",
+"novita"
+],
+"moonshotai/Kimi-K2.6": [
+"deepinfra",
+"featherless-ai",
+"novita"
+],
+"myshell-ai/MeloTTS-English": [],
+"myshell-ai/MeloTTS-Korean": [],
+"nex-agi/Nex-N2.5-mini": [],
+"nlpai-lab/KURE-v1": [
+"hf-inference"
+],
+"naver/splade-cocondenser-selfdistil": [
+"hf-inference"
+],
+"nex-agi/Nex-N2.5-Pro": [],
+"nomic-ai/nomic-embed-text-v1": [],
+"nomic-ai/nomic-embed-text-v1.5": [],
+"nomic-ai/nomic-embed-text-v2-moe": [],
+"nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-NVFP4": [],
+"nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16": [
+"featherless-ai"
+],
+"nvidia/NVIDIA-Nemotron-3-Nano-4B-BF16": [],
+"nphSi/Z-Image-Lora": [
+"wavespeed"
+],
+"nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-FP8": [],
+"nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-BF16": [
+"deepinfra"
+],
+"nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16": [
+"fireworks-ai"
+],
+"nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-BF16": [],
+"nvidia/Nemotron-3.5-Content-Safety": [],
+"nvidia/Qwen3.6-35B-A3B-NVFP4": [],
+"nvidia/dragon-multiturn-context-encoder": [
+"hf-inference"
+],
+"nvidia/Qwen2.5-VL-7B-Instruct-NVFP4": [],
+"nvidia/llama-nemotron-embed-1b-v2": [],
+"nvidia/nemotron-3.5-asr-streaming-0.6b": [
+"deepinfra",
+"fal-ai",
+"together"
+],
+"microsoft/wavlm-large": [],
+"nvidia/dragon-multiturn-query-encoder": [
+"hf-inference"
+],
+"openai-community/gpt2": [],
+"onnx-community/Kokoro-82M-v1.0-ONNX": [],
+"onnx-community/Kokoro-82M-ONNX": [],
+"onnx-community/embeddinggemma-300m-ONNX": [],
+"openai/gpt-oss-20b": [
+"deepinfra",
+"featherless-ai",
+"groq",
+"nscale",
+"ovhcloud"
+],
+"openai/whisper-base": [],
+"openai/gpt-oss-safeguard-20b": [
+"groq"
+],
+"nguyenvulebinh/wav2vec2-base-vi-vlsp2020": [],
+"openai/whisper-large-v3": [
+"deepinfra",
+"fal-ai",
+"hf-inference",
+"replicate",
+"together"
+],
+"openai/whisper-small": [],
+"openai/gpt-oss-120b": [
+"baseten",
+"cerebras",
+"deepinfra",
+"featherless-ai",
+"fireworks-ai",
+"groq",
+"novita",
+"nscale",
+"ovhcloud",
+"scaleway",
+"together"
+],
+"openai/whisper-large-v3-turbo": [
+"deepinfra"
+],
+"openbmb/VoxCPM2": [],
+"optimum-intel-internal-testing/stable-diffusion-3-tiny-random": [],
+"ornith-ai/Ornith-1.0-35B-GGUF": [],
+"optimum-intel-internal-testing/tiny-stable-diffusion-torch": [],
+"ornith-ai/Ornith-1.5-35B-A3B-GGUF": [],
+"openai/whisper-tiny": [],
+"ornith-ai/Ornith-1.5-9B-GGUF": [],
+"ornith-ai/Ornith-1.0-9B-GGUF": [],
+"peculiar-ragdoll/Dirk-Qwen3.8-27B-GGUF": [],
+"peculiar-ragdoll/Tiel-Coder-35B-A3B-GGUF-MTP": [],
+"pnnbao-ump/VieNeu-TTS-v3-Turbo": [],
+"playgroundai/playground-v2.5-1024px-aesthetic": [],
+"poolside/Laguna-S-2.1": [
+"featherless-ai"
+],
+"poolside/Laguna-XS-2.1": [],
+"pyannote/speaker-diarization-community-1": [],
+"pnnbao-ump/VieNeu-TTS-0.3B-q4-gguf": [],
+"pyannote/speaker-diarization-3.1": [],
+"remsky/kokoro-inno-clone-tuner": [],
+"sentence-transformers/LaBSE": [
+"hf-inference"
+],
+"prism-ml/Ternary-Bonsai-2-27B-gguf": [],
+"sentence-transformers-testing/stsb-bert-tiny-safetensors": [
+"hf-inference"
+],
+"sentence-transformers/all-MiniLM-L6-v2": [
+"hf-inference"
+],
+"sentence-transformers/all-roberta-large-v1": [
+"hf-inference"
+],
+"sentence-transformers/all-distilroberta-v1": [
+"hf-inference"
+],
+"sentence-transformers/distiluse-base-multilingual-cased-v1": [
+"hf-inference"
+],
+"sentence-transformers/distiluse-base-multilingual-cased-v2": [
+"hf-inference"
+],
+"sentence-transformers/multi-qa-mpnet-base-dot-v1": [
+"hf-inference"
+],
+"sentence-transformers/multi-qa-MiniLM-L6-cos-v1": [
+"hf-inference"
+],
+"sentence-transformers/nli-mpnet-base-v2": [
+"hf-inference"
+],
+"sentence-transformers/msmarco-bert-base-dot-v5": [
+"hf-inference"
+],
+"sentence-transformers/paraphrase-MiniLM-L6-v2": [
+"hf-inference"
+],
+"sentence-transformers/paraphrase-MiniLM-L3-v2": [
+"hf-inference"
+],
+"sentence-transformers/paraphrase-albert-small-v2": [
+"hf-inference"
+],
+"sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2": [
+"hf-inference"
+],
+"sentence-transformers/paraphrase-mpnet-base-v2": [
+"hf-inference"
+],
+"sesame/csm-1b": [
+"deepinfra"
+],
+"sentence-transformers/paraphrase-multilingual-mpnet-base-v2": [
+"hf-inference"
+],
+"setu4993/LaBSE": [
+"hf-inference"
+],
+"optimum-intel-internal-testing/tiny-random-stable-diffusion-xl": [],
+"shibing624/text2vec-base-chinese": [
+"hf-inference"
+],
+"speechbrain/tts-hifigan-libritts-22050Hz": [],
+"software-mansion/react-native-executorch-kokoro": [],
+"stabilityai/sd-turbo": [],
+"stabilityai/sdxl-turbo": [],
+"stabilityai/stable-diffusion-xl-base-1.0": [
+"fal-ai"
+],
+"stable-diffusion-v1-5/stable-diffusion-v1-5": [],
+"stepfun-ai/Step-3.5-Flash": [
+"deepinfra",
+"featherless-ai"
+],
+"stablediffusionapi/revanimated": [],
+"stable-diffusion-v1-5/stable-diffusion-inpainting": [],
+"tencent/Hy-MT2-1.8B": [],
+"tencent/Hy-MT2-30B-A3B": [],
+"tencent/Hy3-preview": [],
+"stepfun-ai/Step-3.7-Flash": [
+"deepinfra",
+"featherless-ai"
+],
+"tencent/Hunyuan-A13B-Instruct": [],
+"theainerd/Wav2Vec2-large-xlsr-hindi": [],
+"tencent/Hy-MT2-7B": [],
+"thinkingmachines/Inkling-Small": [
+"deepinfra"
+],
+"thinkingmachines/Inkling": [
+"deepinfra",
+"fireworks-ai",
+"together"
+],
+"thenlper/gte-small": [
+"hf-inference"
+],
+"trl-internal-testing/tiny-Qwen2ForCausalLM-2.5": [],
+"tencent/Hy4-preview": [
+"deepinfra",
+"novita"
+],
+"sentence-transformers/all-MiniLM-L12-v2": [
+"hf-inference"
+],
+"perplexity-ai/pplx-embed-v1-0.6b": [],
+"unsloth/Qwen-Image-2.1-FP8": [],
+"unsloth/ERNIE-Image-Turbo-GGUF": [],
+"unsloth/Qwen-Image-2.1-GGUF": [],
+"unsloth/Qwen-Image-2.1-Turbo-GGUF": [],
+"unsloth/Qwen-Image-2512-GGUF": [],
+"unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF": [],
+"unsloth/Z-Image-GGUF": [],
+"unsloth/gemma-4-12b-it-GGUF": [],
+"unsloth/Z-Image-Turbo-GGUF": [],
+"unsloth/orpheus-3b-0.1-ft": [],
+"unslothai/1": [],
+"unslothai/lambda": [],
+"unslothai/vram-16": [],
+"unslothai/repeat": [],
+"vikhyatk/moondream2": [],
+"wikeeyang/Flux2-Klein-9B-True-V2": [],
+"zai-org/GLM-4.5": [],
+"xinsir/controlnet-openpose-sdxl-1.0": [],
+"xinsir/controlnet-union-sdxl-1.0": [],
+"zai-org/GLM-4.5V": [
+"novita",
+"zai-org"
+],
+"voyageai/voyage-4-nano": [],
+"zai-org/GLM-4.6V": [
+"zai-org"
+],
+"zai-org/GLM-4.5-Air": [
+"novita",
+"zai-org"
+],
+"zai-org/GLM-4.7": [
+"deepinfra",
+"featherless-ai",
+"novita",
+"zai-org"
+],
+"zai-org/GLM-5": [
+"deepinfra",
+"featherless-ai",
+"novita",
+"zai-org"
+],
+"zai-org/GLM-5.1": [
+"deepinfra",
+"featherless-ai",
+"zai-org"
+],
+"zai-org/GLM-4.7-Flash": [
+"deepinfra",
+"featherless-ai",
+"novita",
+"zai-org"
+],
+"zai-org/GLM-5.3-Flash": [
+"baseten",
+"deepinfra",
+"featherless-ai",
+"fireworks-ai",
+"novita",
+"together",
+"zai-org"
+],
+"zai-org/GLM-5.3": [
+"baseten",
+"deepinfra",
+"featherless-ai",
+"fireworks-ai",
+"novita",
+"together",
+"zai-org"
+],
+"zai-org/GLM-5.2": [
+"baseten",
+"deepinfra",
+"featherless-ai",
+"novita",
+"scaleway",
+"together",
+"zai-org"
+],
+"zai-org/GLM-4.6": [
+"deepinfra",
+"featherless-ai",
+"novita",
+"zai-org"
+],
+"sentence-transformers/all-mpnet-base-v2": [
+"hf-inference"
+]
+}
+}
